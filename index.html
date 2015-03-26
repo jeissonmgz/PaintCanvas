@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<script type="text/javascript">
+			function init(){
+				var g=document.getElementById('b1').getContext('2d');
+				g.strokeStyle="#ffffff";
+				g.beginPath();
+				g.moveTo(5,5);
+				g.lineTo(25,25);
+				g.closePath();
+				g.stroke();
+				g=document.getElementById('b2').getContext('2d');
+				g.fillStyle="#ffffff";
+				g.fillRect(5,5,20,20);
+				g.clearRect(6,6,18,18);
+				g=document.getElementById('b3').getContext('2d');
+				g.strokeStyle="#ffffff";
+				g.beginPath();
+				g.arc(15,15,10,0,2*Math.PI,false);
+				g.closePath();
+				g.stroke();
+				g=document.getElementById('b4').getContext('2d');
+				g.strokeStyle="#ffffff";
+				g.scale(0.7,1);
+				g.beginPath();
+				g.arc(15/0.7,15,10,0,2*Math.PI,false);
+				g.closePath();
+				g.stroke();
+				g=document.getElementById('b5').getContext('2d');
+				g.strokeStyle="#ffffff";
+				g.beginPath();
+				g.moveTo(25,15);
+				for(var i=1;i<=5;i++)g.lineTo(10*Math.cos(i*2*Math.PI/5)+15,10*Math.sin(i*2*Math.PI/5)+15);
+				g.closePath();
+				g.stroke();
+				g=document.getElementById('b6').getContext('2d');
+					g.strokeStyle="#ffffff";
+					g.font="bold 25px Arial";
+					g.textAlign="center";
+					g.strokeText("T",15,25);
+					}
+		</script>
+		<meta charset="utf-8"/>
+		<meta description="Paint en html5"/>
+		<title>Paint</title>
+		<LINK href="style.css" rel="stylesheet" type="text/css">
+	</head>
+	<body style="margin:0px;" id="all" oncontextmenu="return false" onselect="return false" onload="init()">
+		<!--<header>
+			<figure>
+				<figcaption></figcaption>
+			</figure>
+		</header>
+		<nav>
+		</nav>
+		<section>
+			<hgroup>
+			</hgroup>
+			<article>
+			</article>
+		</section>-->
+		<nav id="menu">
+			<a href="#" id="tb0" class="titulo borde"><img style="max-width: 80%;"src="Iconos/propiedades.png"/>PROPIEDADES</a>
+			<a href="#" id="tb1" class="titulo borde"><img style="max-width: 100%;"src="Iconos/color.png"/>COLOR</a>
+			<a href="#" id="tb2" class="titulo borde"><img style="max-width: 100%;"src="Iconos/figura.png"/>FIGURAS</a>
+			<a href="#" id="tb3" class="titulo borde"><img style="max-width: 100%;"src="Iconos/ver.png"/></a>
+		</nav>
+		<table>
+		<tr>
+		<td>
+		<nav id="m_figura" class="submenu">
+			<center><a href="#" id="t_figura" class="titulo t">FIGURAS</a></center>
+			<table>
+				<tr>
+					<td><canvas width=30px height=30px id="b1" class="boton"></canvas></td>
+					<td><canvas width=30px height=30px id="b2" class="boton"></canvas></td>
+				</tr>
+				<tr>
+					<td><canvas width=30px height=30px id="b3" class="boton"></canvas></td>
+					<td><canvas width=30px height=30px id="b4" class="boton"></canvas></td>
+				</tr>
+				<tr>
+					<td><canvas width=30px height=30px id="b5" class="boton"></canvas></td>
+					<td><input type="number" id="num_ptas_pol" min="3" value="3" class="hidden"></td>
+				</tr>
+				<tr>
+					<td><canvas width=30px height=30px id="b6" class="boton"></canvas></td>
+					<td><canvas width=30px height=30px id="b7" class="boton"></canvas></td>
+				</tr>
+			</table>
+		</nav>
+		<nav id="m_propiedades" class="submenu">
+			<center><a href="#" id="t_propiedades" class="titulo t">PROPIEDADES</a></center>
+			<table>
+				<tr>
+					<td><label>Ancho</label></td>
+					<td><input type="number" id="ancho" name="ancho" min="1" value="900"></td>
+				</tr>
+				<tr>
+					<td><label>Alto</label></td>
+					<td><input type="number" id="alto" name="alto" min="1" value="600"></td>
+				</tr>
+			</table>
+		</nav>
+		<nav id="m_color" class="submenu">
+			<center><a href="#" id="t_color" class="titulo t">COLOR</a></center>
+			<table>
+				<tr>
+					<td rowspan="2">Selecionar</td>
+					<td><input type='radio' id='rb1' name='patternRadio' checked/>Contorno</td>
+				<tr>
+					<td><input type='radio' id='rb2' name='patternRadio'/>Relleno</td>
+				</tr>
+				<tr>
+					<td>Color</td>
+					<td><input id='color' type="color"></td>
+				</tr>
+				<tr>
+					<td>Transparencia</td>
+					<td><input id="alpha" type="range" min="0" max="1" step="0.1" value="1"></td>
+				</tr>
+				</tr>
+			</table>
+		</nav>
+		<nav id="m_linea" class="submenu">
+			<center><a href="#" id="t_linea" class="titulo t">LINEA</a></center>
+			<table>
+				<tr>
+					<td><label>Grosor</label></td>
+					<td><input type="number" id="grosorlinea" min="0.1" step="0.1" value="1"></td>
+				</tr>
+				<tr>
+					<td><label>Estilo</label></td>
+					<td>
+						<select id="estilolinea">
+							<option selected value="butt">Por defecto</option>
+							<option value="round">Redondo</option>
+							<option value="square">Ancho</option>
+						</select>
+					</td>
+				</tr>
+			</table>
+		</nav>
+		</td>
+		
+		<td>
+		<center>
+			<canvas id="g" width="900" height="600"></canvas>
+		</center>
+		</td>
+		</tr>
+		</table>
+		<script src='mover.js'></script>
+		<script src='main.js'></script>
+	</body>
+</html>
