@@ -357,6 +357,7 @@ window.Paint.Tools = (function () {
 
         ctx.lineWidth = currentTool === 'eraser' ? lineWidth * 4 : lineWidth;
         ctx.lineCap = lineCap;
+        ctx.lineJoin = 'round';
         ctx.strokeStyle = fgColor;
         ctx.fillStyle = bgColor;
     }
@@ -412,7 +413,13 @@ window.Paint.Tools = (function () {
         const ctx = canvasManager.getContext();
         applyContextStyles(ctx, paletteManager);
 
-        if (currentTool === 'text') {
+        if (currentTool === 'pencil') {
+            // Draw initial dot on mousedown for single click
+            ctx.beginPath();
+            ctx.arc(startX, startY, Math.max(0.5, ctx.lineWidth / 2), 0, Math.PI * 2);
+            ctx.fillStyle = ctx.strokeStyle;
+            ctx.fill();
+        } else if (currentTool === 'text') {
             const input = prompt('Ingrese el texto a dibujar:', textContent);
             if (input !== null) {
                 textContent = input;
@@ -473,9 +480,6 @@ window.Paint.Tools = (function () {
             return;
         }
 
-        lastX = currentX;
-        lastY = currentY;
-
         if (!isDrawing) {
             if (hasSelection) {
                 drawFloatingSelection(canvasManager);
@@ -484,15 +488,22 @@ window.Paint.Tools = (function () {
                 if (canvasManager.isGridVisible()) canvasManager.drawGrid();
                 if (canvasManager.isGuidesVisible()) canvasManager.drawGuides(currentX, currentY);
             }
+            lastX = currentX;
+            lastY = currentY;
             return;
         }
 
         const ctx = canvasManager.getContext();
 
         if (currentTool === 'pencil') {
+            applyContextStyles(ctx, paletteManager);
             drawPencil(ctx, lastX, lastY, currentX, currentY);
+            lastX = currentX;
+            lastY = currentY;
         } else if (currentTool === 'eraser') {
             drawEraser(ctx, lastX, lastY, currentX, currentY);
+            lastX = currentX;
+            lastY = currentY;
         } else {
             // Live Preview shape
             canvasManager.restoreSnapshot();
@@ -520,6 +531,8 @@ window.Paint.Tools = (function () {
             if (canvasManager.isGuidesVisible()) {
                 canvasManager.drawGuides(currentX, currentY);
             }
+            lastX = currentX;
+            lastY = currentY;
         }
     }
 
