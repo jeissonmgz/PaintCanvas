@@ -15,6 +15,7 @@ window.Paint.UI = (function () {
         setupToolOptions();
         setupColorSwatches();
         setupCanvasEvents();
+        setupResizeHandles();
         setupWindowControls();
         updateStatusBarDimensions();
     }
@@ -287,6 +288,67 @@ window.Paint.UI = (function () {
         });
     }
 
+    function setupResizeHandles() {
+        const handles = document.querySelectorAll('.resize-handle');
+        const canvas = Canvas.getCanvas();
+        if (!canvas || !handles.length) return;
+
+        handles.forEach(handle => {
+            handle.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const handleType = handle.dataset.handle;
+                const startX = e.clientX;
+                const startY = e.clientY;
+                const startWidth = canvas.width;
+                const startHeight = canvas.height;
+
+                let targetWidth = startWidth;
+                let targetHeight = startHeight;
+
+                const onMouseMove = (moveEvent) => {
+                    const deltaX = moveEvent.clientX - startX;
+                    const deltaY = moveEvent.clientY - startY;
+
+                    targetWidth = startWidth;
+                    targetHeight = startHeight;
+
+                    if (handleType.includes('e')) {
+                        targetWidth = Math.max(50, startWidth + deltaX);
+                    } else if (handleType.includes('w')) {
+                        targetWidth = Math.max(50, startWidth - deltaX);
+                    }
+
+                    if (handleType.includes('s')) {
+                        targetHeight = Math.max(50, startHeight + deltaY);
+                    } else if (handleType.includes('n')) {
+                        targetHeight = Math.max(50, startHeight - deltaY);
+                    }
+
+                    // Live update status bar dimensions text while dragging
+                    const dimElem = document.getElementById('status-dimensions');
+                    if (dimElem) {
+                        dimElem.textContent = `${Math.round(targetWidth)} x ${Math.round(targetHeight)}px`;
+                    }
+                };
+
+                const onMouseUp = () => {
+                    window.removeEventListener('mousemove', onMouseMove);
+                    window.removeEventListener('mouseup', onMouseUp);
+
+                    if (targetWidth !== startWidth || targetHeight !== startHeight) {
+                        Canvas.resize(Math.round(targetWidth), Math.round(targetHeight));
+                        updateStatusBarDimensions();
+                    }
+                };
+
+                window.addEventListener('mousemove', onMouseMove);
+                window.addEventListener('mouseup', onMouseUp);
+            });
+        });
+    }
+
     function updateStatusCoordinates(x, y) {
         const coordsElem = document.getElementById('status-coords');
         if (!coordsElem) return;
@@ -314,9 +376,15 @@ window.Paint.UI = (function () {
         const canvasWidthInput = document.getElementById('canvas-w-input');
         const canvasHeightInput = document.getElementById('canvas-h-input');
         const applyResizeBtn = document.getElementById('apply-resize-btn');
+        const dimElem = document.getElementById('status-dimensions');
+
+        // Click on status bar dimensions opens retro resize modal
+        if (dimElem) {
+            dimElem.addEventListener('click', openResizeModal);
+        }
 
         if (canvasWidthInput && canvasHeightInput && applyResizeBtn) {
-            applyResizeBtn.addEventListener('click', () => {
+            const handleApply = () => {
                 const w = parseInt(canvasWidthInput.value, 10);
                 const h = parseInt(canvasHeightInput.value, 10);
                 if (w > 0 && h > 0) {
@@ -324,9 +392,21 @@ window.Paint.UI = (function () {
                     updateStatusBarDimensions();
                     closeResizeModal();
                 } else {
-                    alert('Por favor ingrese dimensiones válidas.');
+                    alert('Por favor ingrese dimensiones válidas en píxeles.');
                 }
-            });
+            };
+
+            applyResizeBtn.addEventListener('click', handleApply);
+
+            // Allow pressing Enter key inside modal inputs to apply resize
+            const handleKeyEnter = (e) => {
+                if (e.key === 'Enter') {
+                    handleApply();
+                }
+            };
+
+            canvasWidthInput.addEventListener('keyup', handleKeyEnter);
+            canvasHeightInput.addEventListener('keyup', handleKeyEnter);
         }
 
         const closeModalBtns = document.querySelectorAll('.close-modal');
@@ -338,10 +418,17 @@ window.Paint.UI = (function () {
     function openResizeModal() {
         const modal = document.getElementById('resize-modal');
         const canvas = Canvas.getCanvas();
-        if (modal && canvas) {
-            document.getElementById('canvas-w-input').value = canvas.width;
-            document.getElementById('canvas-h-input').value = canvas.height;
+        const wInput = document.getElementById('canvas-w-input');
+        const hInput = document.getElementById('canvas-h-input');
+
+        if (modal && canvas && wInput && hInput) {
+            wInput.value = canvas.width;
+            hInput.value = canvas.height;
             modal.style.display = 'flex';
+            setTimeout(() => {
+                wInput.focus();
+                wInput.select();
+            }, 50);
         }
     }
 

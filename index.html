@@ -151,7 +151,19 @@
 
             <!-- Canvas Viewport -->
             <div class="canvas-container">
-                <canvas id="paintCanvas" width="900" height="600"></canvas>
+                <div class="canvas-wrapper" id="canvas-wrapper">
+                    <canvas id="paintCanvas" width="900" height="600"></canvas>
+
+                    <!-- Interactive Canvas Resize Handle Dots -->
+                    <div class="resize-handle handle-nw" data-handle="nw" title="Ajustar tamaño"></div>
+                    <div class="resize-handle handle-n" data-handle="n" title="Ajustar alto superior"></div>
+                    <div class="resize-handle handle-ne" data-handle="ne" title="Ajustar tamaño"></div>
+                    <div class="resize-handle handle-w" data-handle="w" title="Ajustar ancho izquierdo"></div>
+                    <div class="resize-handle handle-e" data-handle="e" title="Ajustar ancho derecho"></div>
+                    <div class="resize-handle handle-sw" data-handle="sw" title="Ajustar tamaño"></div>
+                    <div class="resize-handle handle-s" data-handle="s" title="Ajustar alto inferior"></div>
+                    <div class="resize-handle handle-se" data-handle="se" title="Ajustar tamaño"></div>
+                </div>
             </div>
 
         </div>
@@ -196,7 +208,7 @@
             <div class="status-bar">
                 <div class="status-panel main-status" id="status-msg">Para dibujar, seleccione una herramienta y arrastre sobre el lienzo.</div>
                 <div class="status-panel coords-status" id="status-coords"></div>
-                <div class="status-panel dim-status" id="status-dimensions">900 x 600px</div>
+                <div class="status-panel dim-status" id="status-dimensions" title="Haz clic para cambiar el tamaño del lienzo">900 x 600px</div>
             </div>
 
         </div>

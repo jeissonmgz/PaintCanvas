@@ -297,8 +297,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 15px;
+    padding: 25px;
     position: relative;
+}
+
+.canvas-wrapper {
+    position: relative;
+    display: inline-block;
+    line-height: 0;
 }
 
 #paintCanvas {
@@ -306,6 +312,74 @@ body {
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
     cursor: crosshair;
     display: block;
+}
+
+/* Retro Windows Paint Resize Handles */
+.resize-handle {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    background-color: #ffffff;
+    border: 1px solid #000000;
+    z-index: 20;
+    box-sizing: border-box;
+}
+
+.resize-handle:hover {
+    background-color: #000000;
+    border-color: #ffffff;
+}
+
+.resize-handle.handle-nw {
+    top: -4px;
+    left: -4px;
+    cursor: nwse-resize;
+}
+
+.resize-handle.handle-n {
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+}
+
+.resize-handle.handle-ne {
+    top: -4px;
+    right: -4px;
+    cursor: nesw-resize;
+}
+
+.resize-handle.handle-w {
+    top: 50%;
+    left: -4px;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+}
+
+.resize-handle.handle-e {
+    top: 50%;
+    right: -4px;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+}
+
+.resize-handle.handle-sw {
+    bottom: -4px;
+    left: -4px;
+    cursor: nesw-resize;
+}
+
+.resize-handle.handle-s {
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+}
+
+.resize-handle.handle-se {
+    bottom: -4px;
+    right: -4px;
+    cursor: nwse-resize;
 }
 
 /* --------------------------------------------------------------------------
@@ -342,12 +416,13 @@ body {
     height: 24px;
     border: 2px solid;
     border-color: #808080 #ffffff #ffffff #808080;
+    cursor: pointer;
 }
 
 .color-box.bg-box {
     bottom: 0;
     right: 0;
-    background-color: #ffffff;
+    background-color: #c0c0c0;
     z-index: 1;
 }
 
@@ -431,6 +506,15 @@ body {
 
 .status-panel.dim-status {
     width: 110px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.status-panel.dim-status:hover {
+    background-color: #ffffff;
+    color: #000080;
+    font-weight: bold;
+    border-color: #000080 #ffffff #ffffff #000080;
 }
 
 /* --------------------------------------------------------------------------
