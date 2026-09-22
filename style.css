@@ -1,61 +1,487 @@
-.titulo{
-	display:inline-block;
-	//cursor:pointer;
-	text-decoration:none;
-	font:12px Arial;
-	padding-top:10px;
-	padding-bottom:5px;
-	text-shadow: 0 1px 1px rgba(0,0,0,1);
-	color:#d7d7d7;
-	border-radius:1px;}
-.titulo:hover{
-	font-weight:bold;
-	color:#FFFFFF;}
-.borde{
-	padding-left:5px;
-	padding-right:5px;}
-.t{
-	width:95%;
-	background:rgba(0,0,0,0.7);}
-.t:hover{
-	width:100%;
-	//cursor:move;
-	background:rgba(0,0,0,0.75);}
-.submenu{
-	border-radius:3px;
-	//position:absolute;
-	background:rgba(0,0,0,0.5);
-	font:12px Arial;
-	color:#FFFFFF;}
-.boton{
-	background:rgba(0,0,0,0.7);
-	border-radius:1px;
-	cursor:pointer;}
-.boton:hover{
-	background:#000000;}
-#num_ptas_pol{
-	width:31px;}
-#menu{
-	position: fixed;
-	text-align:right;
-	background:#000000;
-	width:100%;}
-#m_figura{
-	left:0;
-	top:10%;}
-#m_color{
-	left:0;
-	top:50%;}
-#m_propiedades{
-	left:0;
-	top:70%;}
-#m_linea{
-	left:0;
-	top:85%;}
-#all{
-	background:#242423;}
-#g{
-	border:thin solid #aaaaaa;
-	cursor:crosshair;
-	background:rgb(255,255,255);
-	margin-top:35px;}
+/* ==========================================================================
+   PAINT CANVAS RETRO - WINDOWS XP / 98 STYLE (VANILLA CSS)
+   ========================================================================== */
+
+/* Font & Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Tahoma', 'MS Sans Serif', 'Segoe UI', sans-serif;
+    font-size: 11px;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body {
+    background-color: #3a6ea5; /* Classic Windows Desktop Blue Background */
+    background-image: radial-gradient(#4a7eb5 1px, transparent 0);
+    background-size: 16px 16px;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Main Application Window (Retro Windows XP/98 Frame) */
+.win-app {
+    width: 96vw;
+    max-width: 1200px;
+    height: 94vh;
+    max-height: 850px;
+    background-color: #ece9d8; /* Windows XP Classic Light Gray */
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+}
+
+/* --------------------------------------------------------------------------
+   Title Bar
+   -------------------------------------------------------------------------- */
+.title-bar {
+    height: 28px;
+    background: linear-gradient(180deg, #0058e6 0%, #003cb3 100%); /* XP Blue Gradient */
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6px;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.title-bar-text {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-shadow: 1px 1px 1px #000055;
+}
+
+.title-bar-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.title-bar-controls {
+    display: flex;
+    gap: 2px;
+}
+
+.win-btn {
+    width: 20px;
+    height: 20px;
+    background: #ece9d8;
+    border: 1px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    font-size: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #000;
+}
+
+.win-btn:active {
+    border-color: #808080 #ffffff #ffffff #808080;
+    padding-top: 1px;
+    padding-left: 1px;
+}
+
+.win-btn.close-btn {
+    background: #e81123;
+    color: #ffffff;
+    border-color: #ff7f7f #990000 #990000 #ff7f7f;
+}
+
+/* --------------------------------------------------------------------------
+   Top Menu Bar
+   -------------------------------------------------------------------------- */
+.menu-bar {
+    height: 24px;
+    background-color: #ece9d8;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #aca899;
+    padding: 0 4px;
+}
+
+.menu-item {
+    position: relative;
+}
+
+.menu-btn {
+    padding: 3px 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 11px;
+    color: #000;
+}
+
+.menu-btn:hover, .menu-item.open .menu-btn {
+    background-color: #316ac5;
+    color: #ffffff;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #ffffff;
+    border: 1px solid #716f64;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
+    z-index: 100;
+    min-width: 160px;
+    padding: 2px 0;
+}
+
+.menu-item.open .dropdown-menu {
+    display: block;
+}
+
+.dropdown-item {
+    padding: 4px 20px 4px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #000;
+    text-decoration: none;
+    position: relative;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #316ac5;
+    color: #ffffff;
+}
+
+.dropdown-item.checked::before {
+    content: "✓";
+    position: absolute;
+    left: 8px;
+    font-weight: bold;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #aca899;
+    margin: 3px 0;
+}
+
+/* --------------------------------------------------------------------------
+   Main Workspace Container
+   -------------------------------------------------------------------------- */
+.app-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    background-color: #ece9d8;
+    padding: 3px;
+    gap: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   Left Toolbar Panel
+   -------------------------------------------------------------------------- */
+.sidebar-panel {
+    width: 175px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.panel-box {
+    background-color: #ece9d8;
+    border: 2px solid;
+    border-color: #808080 #ffffff #ffffff #808080; /* Sunken Inset bevel */
+    padding: 5px;
+}
+
+.panel-header {
+    font-weight: bold;
+    font-size: 11px;
+    color: #000080;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 2-Column Tool Grid */
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3px;
+}
+
+.tool-btn {
+    height: 30px;
+    background-color: #ece9d8;
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff; /* Outset bevel */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    gap: 4px;
+    padding: 2px;
+}
+
+.tool-btn:hover {
+    background-color: #f5f2e6;
+}
+
+.tool-btn:active, .tool-btn.active {
+    border-color: #808080 #ffffff #ffffff #808080; /* Inset bevel */
+    background-color: #ffffff;
+    background-image: radial-gradient(#000000 15%, transparent 16%);
+    background-size: 3px 3px;
+}
+
+.tool-icon {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: #000;
+    stroke-width: 2;
+}
+
+.tool-label {
+    font-size: 10px;
+}
+
+/* Tool Options Settings Box */
+.tool-options-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.option-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+}
+
+.option-row label {
+    font-size: 10px;
+}
+
+.retro-input, .retro-select {
+    background: #ffffff;
+    border: 2px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+    padding: 1px 4px;
+    font-size: 11px;
+}
+
+.retro-input[type="number"] {
+    width: 50px;
+}
+
+/* --------------------------------------------------------------------------
+   Center Canvas Area
+   -------------------------------------------------------------------------- */
+.canvas-container {
+    flex: 1;
+    background-color: #808080; /* Classic dark grey surrounding area */
+    border: 2px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    position: relative;
+}
+
+#paintCanvas {
+    background-color: #ffffff;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+    cursor: crosshair;
+    display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Bottom Color Palette & Status Bar
+   -------------------------------------------------------------------------- */
+.bottom-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 0 3px 3px 3px;
+}
+
+.color-bar {
+    height: 52px;
+    background-color: #ece9d8;
+    border: 2px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    gap: 12px;
+}
+
+/* Dual Color Box Indicator */
+.color-preview-container {
+    position: relative;
+    width: 36px;
+    height: 36px;
+}
+
+.color-box {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: 2px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.color-box.bg-box {
+    bottom: 0;
+    right: 0;
+    background-color: #ffffff;
+    z-index: 1;
+}
+
+.color-box.fg-box {
+    top: 0;
+    left: 0;
+    background-color: #000000;
+    z-index: 2;
+}
+
+/* Swatch Grid */
+.swatch-grid {
+    display: grid;
+    grid-template-rows: repeat(2, 16px);
+    grid-auto-flow: column;
+    gap: 2px;
+}
+
+.color-swatch {
+    width: 16px;
+    height: 16px;
+    border: 1px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+    cursor: pointer;
+}
+
+.color-swatch:hover {
+    transform: scale(1.1);
+    z-index: 5;
+}
+
+.color-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 1px solid #aca899;
+    padding-left: 10px;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 10px;
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+}
+
+/* --------------------------------------------------------------------------
+   Status Bar
+   -------------------------------------------------------------------------- */
+.status-bar {
+    height: 22px;
+    background-color: #ece9d8;
+    display: flex;
+    gap: 3px;
+}
+
+.status-panel {
+    border: 1px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+    padding: 2px 6px;
+    display: flex;
+    align-items: center;
+    font-size: 11px;
+    color: #404040;
+}
+
+.status-panel.main-status {
+    flex: 1;
+}
+
+.status-panel.coords-status {
+    width: 140px;
+}
+
+.status-panel.dim-status {
+    width: 110px;
+}
+
+/* --------------------------------------------------------------------------
+   Modal Window Dialog (Resize Canvas)
+   -------------------------------------------------------------------------- */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-win {
+    width: 280px;
+    background-color: #ece9d8;
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.modal-body {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.btn-retro {
+    padding: 3px 12px;
+    background: #ece9d8;
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.btn-retro:active {
+    border-color: #808080 #ffffff #ffffff #808080;
+    padding-top: 4px;
+    padding-left: 13px;
+}

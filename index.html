@@ -1,157 +1,238 @@
 <!DOCTYPE html>
 <html lang="es">
-	<head>
-		<script type="text/javascript">
-			function init(){
-				var g=document.getElementById('b1').getContext('2d');
-				g.strokeStyle="#ffffff";
-				g.beginPath();
-				g.moveTo(5,5);
-				g.lineTo(25,25);
-				g.closePath();
-				g.stroke();
-				g=document.getElementById('b2').getContext('2d');
-				g.fillStyle="#ffffff";
-				g.fillRect(5,5,20,20);
-				g.clearRect(6,6,18,18);
-				g=document.getElementById('b3').getContext('2d');
-				g.strokeStyle="#ffffff";
-				g.beginPath();
-				g.arc(15,15,10,0,2*Math.PI,false);
-				g.closePath();
-				g.stroke();
-				g=document.getElementById('b4').getContext('2d');
-				g.strokeStyle="#ffffff";
-				g.scale(0.7,1);
-				g.beginPath();
-				g.arc(15/0.7,15,10,0,2*Math.PI,false);
-				g.closePath();
-				g.stroke();
-				g=document.getElementById('b5').getContext('2d');
-				g.strokeStyle="#ffffff";
-				g.beginPath();
-				g.moveTo(25,15);
-				for(var i=1;i<=5;i++)g.lineTo(10*Math.cos(i*2*Math.PI/5)+15,10*Math.sin(i*2*Math.PI/5)+15);
-				g.closePath();
-				g.stroke();
-				g=document.getElementById('b6').getContext('2d');
-					g.strokeStyle="#ffffff";
-					g.font="bold 25px Arial";
-					g.textAlign="center";
-					g.strokeText("T",15,25);
-					}
-		</script>
-		<meta charset="utf-8"/>
-		<meta description="Paint en html5"/>
-		<title>Paint</title>
-		<LINK href="style.css" rel="stylesheet" type="text/css">
-	</head>
-	<body style="margin:0px;" id="all" oncontextmenu="return false" onselect="return false" onload="init()">
-		<!--<header>
-			<figure>
-				<figcaption></figcaption>
-			</figure>
-		</header>
-		<nav>
-		</nav>
-		<section>
-			<hgroup>
-			</hgroup>
-			<article>
-			</article>
-		</section>-->
-		<nav id="menu">
-			<a href="#" id="tb0" class="titulo borde"><img style="max-width: 80%;"src="Iconos/propiedades.png"/>PROPIEDADES</a>
-			<a href="#" id="tb1" class="titulo borde"><img style="max-width: 100%;"src="Iconos/color.png"/>COLOR</a>
-			<a href="#" id="tb2" class="titulo borde"><img style="max-width: 100%;"src="Iconos/figura.png"/>FIGURAS</a>
-			<a href="#" id="tb3" class="titulo borde"><img style="max-width: 100%;"src="Iconos/ver.png"/></a>
-		</nav>
-		<table>
-		<tr>
-		<td>
-		<nav id="m_figura" class="submenu">
-			<center><a href="#" id="t_figura" class="titulo t">FIGURAS</a></center>
-			<table>
-				<tr>
-					<td><canvas width=30px height=30px id="b1" class="boton"></canvas></td>
-					<td><canvas width=30px height=30px id="b2" class="boton"></canvas></td>
-				</tr>
-				<tr>
-					<td><canvas width=30px height=30px id="b3" class="boton"></canvas></td>
-					<td><canvas width=30px height=30px id="b4" class="boton"></canvas></td>
-				</tr>
-				<tr>
-					<td><canvas width=30px height=30px id="b5" class="boton"></canvas></td>
-					<td><input type="number" id="num_ptas_pol" min="3" value="3" class="hidden"></td>
-				</tr>
-				<tr>
-					<td><canvas width=30px height=30px id="b6" class="boton"></canvas></td>
-					<td><canvas width=30px height=30px id="b7" class="boton"></canvas></td>
-				</tr>
-			</table>
-		</nav>
-		<nav id="m_propiedades" class="submenu">
-			<center><a href="#" id="t_propiedades" class="titulo t">PROPIEDADES</a></center>
-			<table>
-				<tr>
-					<td><label>Ancho</label></td>
-					<td><input type="number" id="ancho" name="ancho" min="1" value="900"></td>
-				</tr>
-				<tr>
-					<td><label>Alto</label></td>
-					<td><input type="number" id="alto" name="alto" min="1" value="600"></td>
-				</tr>
-			</table>
-		</nav>
-		<nav id="m_color" class="submenu">
-			<center><a href="#" id="t_color" class="titulo t">COLOR</a></center>
-			<table>
-				<tr>
-					<td rowspan="2">Selecionar</td>
-					<td><input type='radio' id='rb1' name='patternRadio' checked/>Contorno</td>
-				<tr>
-					<td><input type='radio' id='rb2' name='patternRadio'/>Relleno</td>
-				</tr>
-				<tr>
-					<td>Color</td>
-					<td><input id='color' type="color"></td>
-				</tr>
-				<tr>
-					<td>Transparencia</td>
-					<td><input id="alpha" type="range" min="0" max="1" step="0.1" value="1"></td>
-				</tr>
-				</tr>
-			</table>
-		</nav>
-		<nav id="m_linea" class="submenu">
-			<center><a href="#" id="t_linea" class="titulo t">LINEA</a></center>
-			<table>
-				<tr>
-					<td><label>Grosor</label></td>
-					<td><input type="number" id="grosorlinea" min="0.1" step="0.1" value="1"></td>
-				</tr>
-				<tr>
-					<td><label>Estilo</label></td>
-					<td>
-						<select id="estilolinea">
-							<option selected value="butt">Por defecto</option>
-							<option value="round">Redondo</option>
-							<option value="square">Ancho</option>
-						</select>
-					</td>
-				</tr>
-			</table>
-		</nav>
-		</td>
-		
-		<td>
-		<center>
-			<canvas id="g" width="900" height="600"></canvas>
-		</center>
-		</td>
-		</tr>
-		</table>
-		<script src='mover.js'></script>
-		<script src='main.js'></script>
-	</body>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Paint Canvas Retro</title>
+    <link href="style.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+    <!-- Main Window Frame (Retro Windows XP/98 Style) -->
+    <div class="win-app">
+
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <div class="title-bar-text">
+                <svg class="title-bar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+                <span>Paint - Canvas Retro</span>
+            </div>
+            <div class="title-bar-controls">
+                <button class="win-btn" title="Minimizar">_</button>
+                <button class="win-btn" title="Maximizar">□</button>
+                <button class="win-btn close-btn" title="Cerrar">✕</button>
+            </div>
+        </div>
+
+        <!-- Top Menu Bar -->
+        <div class="menu-bar">
+            <div class="menu-item">
+                <button class="menu-btn">Archivo</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" id="action-new">Nuevo <span>Ctrl+N</span></a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" id="action-export">Guardar Imagen <span>Ctrl+S</span></a>
+                </div>
+            </div>
+            <div class="menu-item">
+                <button class="menu-btn">Edición</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" id="action-undo">Deshacer <span>Ctrl+Z</span></a>
+                    <a class="dropdown-item" id="action-redo">Rehacer <span>Ctrl+Y</span></a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" id="action-clear">Borrar Lienzo</a>
+                </div>
+            </div>
+            <div class="menu-item">
+                <button class="menu-btn">Ver</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" id="action-grid">Ver Cuadrícula</a>
+                    <a class="dropdown-item checked" id="action-guides">Ver Guías</a>
+                </div>
+            </div>
+            <div class="menu-item">
+                <button class="menu-btn">Imagen</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" id="action-resize">Tamaño del Lienzo...</a>
+                </div>
+            </div>
+            <div class="menu-item">
+                <button class="menu-btn">Ayuda</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" id="action-about">Acerca de Paint Canvas</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Body Workspace -->
+        <div class="app-body">
+
+            <!-- Left Toolbar Panel -->
+            <div class="sidebar-panel">
+                
+                <!-- Tools Box -->
+                <div class="panel-box">
+                    <div class="panel-header">HERRAMIENTAS</div>
+                    <div class="tools-grid">
+                        <button class="tool-btn active" data-tool="line" title="Línea Recta">
+                            <svg class="tool-icon" viewBox="0 0 24 24"><line x1="4" y1="20" x2="20" y2="4"/></svg>
+                            <span class="tool-label">Línea</span>
+                        </button>
+                        <button class="tool-btn" data-tool="rect" title="Rectángulo / Cuadrado">
+                            <svg class="tool-icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16"/></svg>
+                            <span class="tool-label">Cuadro</span>
+                        </button>
+                        <button class="tool-btn" data-tool="circle" title="Círculo">
+                            <svg class="tool-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
+                            <span class="tool-label">Círculo</span>
+                        </button>
+                        <button class="tool-btn" data-tool="ellipse" title="Óvalo / Elipse">
+                            <svg class="tool-icon" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="6"/></svg>
+                            <span class="tool-label">Óvalo</span>
+                        </button>
+                        <button class="tool-btn" data-tool="polygon" title="Polígono Regular">
+                            <svg class="tool-icon" viewBox="0 0 24 24"><polygon points="12,2 22,9 18,21 6,21 2,9"/></svg>
+                            <span class="tool-label">Polígono</span>
+                        </button>
+                        <button class="tool-btn" data-tool="pencil" title="Lápiz / Mano alzada">
+                            <svg class="tool-icon" viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                            <span class="tool-label">Lápiz</span>
+                        </button>
+                        <button class="tool-btn" data-tool="eraser" title="Borrador">
+                            <svg class="tool-icon" viewBox="0 0 24 24"><path d="M18 13l-6 6-7-7 6-6 7 7z"/><line x1="18" y1="21" x2="6" y2="21"/></svg>
+                            <span class="tool-label">Borrador</span>
+                        </button>
+                        <button class="tool-btn" data-tool="text" title="Texto">
+                            <svg class="tool-icon" viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="9" y1="20" x2="15" y2="20"/></svg>
+                            <span class="tool-label">Texto</span>
+                        </button>
+                        <button class="tool-btn" data-tool="fill" title="Relleno de color">
+                            <svg class="tool-icon" viewBox="0 0 24 24"><path d="M19 11l-8-8-8 8 8 8 8-8z"/><path d="M22 22s-2-2-2-4 2-4 2-4"/></svg>
+                            <span class="tool-label">Relleno</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tool Options Box -->
+                <div class="panel-box tool-options-box">
+                    <div class="panel-header">OPCIONES</div>
+
+                    <div class="option-row">
+                        <label for="line-width">Grosor:</label>
+                        <input type="number" id="line-width" class="retro-input" min="1" max="50" value="1"/>
+                    </div>
+
+                    <div class="option-row">
+                        <label for="line-cap">Estilo:</label>
+                        <select id="line-cap" class="retro-select">
+                            <option value="butt">Defecto</option>
+                            <option value="round">Redondo</option>
+                            <option value="square">Ancho</option>
+                        </select>
+                    </div>
+
+                    <div class="option-row" id="opt-polygon-sides" style="display: none;">
+                        <label for="polygon-sides">Lados:</label>
+                        <input type="number" id="polygon-sides" class="retro-input" min="3" max="12" value="3"/>
+                    </div>
+
+                    <div class="option-row" style="margin-top: 4px;">
+                        <label><input type="checkbox" id="enable-stroke" checked/> Contorno</label>
+                    </div>
+                    <div class="option-row">
+                        <label><input type="checkbox" id="enable-fill"/> Relleno</label>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Canvas Viewport -->
+            <div class="canvas-container">
+                <canvas id="paintCanvas" width="900" height="600"></canvas>
+            </div>
+
+        </div>
+
+        <!-- Bottom Panel (Color Palette & Status Bar) -->
+        <div class="bottom-panel">
+
+            <!-- Color Palette Bar -->
+            <div class="color-bar">
+                <!-- Dual Color Preview -->
+                <div class="color-preview-container" title="Color Primario (Frontal) / Color Secundario (Fondo)">
+                    <div class="color-box bg-box" id="bg-color-box"></div>
+                    <div class="color-box fg-box" id="fg-color-box"></div>
+                </div>
+
+                <!-- 28 Color Swatches Grid -->
+                <div class="swatch-grid" id="swatch-grid">
+                    <!-- Dynamic Swatches populated by JS -->
+                </div>
+
+                <!-- Color Controls -->
+                <div class="color-controls">
+                    <div class="radio-group">
+                        <label><input type="radio" name="colorTarget" id="mode-fg" checked/> Contorno (1er Color)</label>
+                        <label><input type="radio" name="colorTarget" id="mode-bg"/> Relleno (2do Color)</label>
+                    </div>
+
+                    <div class="option-row">
+                        <label>Color Custom:</label>
+                        <input type="color" id="custom-color-input" value="#000000"/>
+                    </div>
+
+                    <div class="option-row">
+                        <label>Alfa:</label>
+                        <input type="range" id="opacity-slider" min="0" max="1" step="0.05" value="1"/>
+                        <span id="opacity-value" style="font-size: 10px;">100%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-panel main-status" id="status-msg">Para dibujar, seleccione una herramienta y arrastre sobre el lienzo.</div>
+                <div class="status-panel coords-status" id="status-coords"></div>
+                <div class="status-panel dim-status" id="status-dimensions">900 x 600px</div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Resize Modal Dialog -->
+    <div class="modal-overlay" id="resize-modal">
+        <div class="modal-win">
+            <div class="title-bar">
+                <span>Tamaño del Lienzo</span>
+                <button class="win-btn close-modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="option-row">
+                    <label for="canvas-w-input">Ancho (px):</label>
+                    <input type="number" id="canvas-w-input" class="retro-input" value="900" min="50" max="3000"/>
+                </div>
+                <div class="option-row">
+                    <label for="canvas-h-input">Alto (px):</label>
+                    <input type="number" id="canvas-h-input" class="retro-input" value="600" min="50" max="3000"/>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-retro" id="apply-resize-btn">Aceptar</button>
+                    <button class="btn-retro close-modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modular Vanilla JavaScript Files -->
+    <script src="js/canvas.js"></script>
+    <script src="js/tools.js"></script>
+    <script src="js/palette.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
 </html>
