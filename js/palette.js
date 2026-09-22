@@ -6,7 +6,7 @@ window.Paint = window.Paint || {};
 
 window.Paint.Palette = (function () {
     let foregroundColor = '#000000';
-    let backgroundColor = '#c0c0c0'; // Default distinct fill color (Light Gray)
+    let backgroundColor = '#ffffff'; // Default white background color
     let activeMode = 'foreground'; // 'foreground' or 'background'
     let opacity = 1.0;
 

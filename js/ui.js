@@ -17,6 +17,7 @@ window.Paint.UI = (function () {
         setupCanvasEvents();
         setupResizeHandles();
         setupWindowControls();
+        setupKeyboardShortcuts();
         updateStatusBarDimensions();
     }
 
@@ -90,7 +91,7 @@ window.Paint.UI = (function () {
                 btn.classList.add('active');
 
                 const toolName = btn.dataset.tool;
-                Tools.setTool(toolName);
+                Tools.setTool(toolName, Canvas);
                 updateToolOptionsVisibility(toolName);
                 updateStatusText(`Herramienta activa: ${toolName.toUpperCase()}`);
             });
@@ -496,6 +497,25 @@ window.Paint.UI = (function () {
                 window.addEventListener('mousemove', onMouseMove);
                 window.addEventListener('mouseup', onMouseUp);
             });
+        });
+    }
+
+    function setupKeyboardShortcuts() {
+        window.addEventListener('keydown', (e) => {
+            // Ignore shortcuts if typing in text inputs or modals
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            if (Tools.hasSelection()) {
+                if (e.key === 'Delete' || e.key === 'Backspace') {
+                    e.preventDefault();
+                    Tools.deleteActiveSelection(Canvas);
+                } else if (e.key === 'Escape' || e.key === 'Enter') {
+                    e.preventDefault();
+                    Tools.commitActiveSelection(Canvas);
+                }
+            }
         });
     }
 
