@@ -56,6 +56,9 @@ window.Paint.UI = (function () {
                 Canvas.clearCanvas(true);
                 Canvas.saveHistory();
             },
+            'action-zoom-in': () => Canvas.zoomIn(),
+            'action-zoom-out': () => Canvas.zoomOut(),
+            'action-zoom-reset': () => Canvas.resetZoom(),
             'action-grid': () => {
                 const active = Canvas.toggleGrid();
                 document.getElementById('action-grid').classList.toggle('checked', active);
@@ -266,23 +269,170 @@ window.Paint.UI = (function () {
 
     function setupCanvasEvents() {
         const canvas = Canvas.getCanvas();
-        if (!canvas) return;
+        const canvasContainer = document.querySelector('.canvas-container');
+        if (!canvas || !canvasContainer) return;
 
-        canvas.addEventListener('mousedown', (e) => Tools.onMouseDown(e, Canvas, Palette));
+        // Mouse drawing events
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.button === 1) return; // Ignore middle-click for drawing
+            Tools.onMouseDown(e, Canvas, Palette);
+        });
         canvas.addEventListener('mousemove', (e) => {
             Tools.onMouseMove(e, Canvas, Palette);
             const coords = Canvas.getCoordinates(e);
             updateStatusCoordinates(coords.x, coords.y);
         });
-        canvas.addEventListener('mouseup', (e) => Tools.onMouseUp(e, Canvas, Palette));
+        canvas.addEventListener('mouseup', (e) => {
+            if (e.button === 1) return;
+            Tools.onMouseUp(e, Canvas, Palette);
+        });
         canvas.addEventListener('mouseleave', () => {
             Tools.onMouseLeave(Canvas, Palette);
             updateStatusCoordinates(null, null);
         });
 
+        // Always-on Mouse Wheel Zoom on canvas viewport
+        canvasContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                Canvas.zoomIn();
+            } else {
+                Canvas.zoomOut();
+            }
+        }, { passive: false });
+
+        // Middle-Click (Scroll Wheel Button Drag Panning)
+        let isPanning = false;
+        let panStartX = 0;
+        let panStartY = 0;
+        let startScrollLeft = 0;
+        let startScrollTop = 0;
+
+        canvasContainer.addEventListener('mousedown', (e) => {
+            if (e.button === 1) { // Middle click (scroll wheel)
+                e.preventDefault();
+                e.stopPropagation();
+                isPanning = true;
+                panStartX = e.clientX;
+                panStartY = e.clientY;
+                startScrollLeft = canvasContainer.scrollLeft;
+                startScrollTop = canvasContainer.scrollTop;
+                canvasContainer.style.cursor = 'grabbing';
+            }
+        });
+
+        // Prevent middle-click autoscroll popup icon
+        canvasContainer.addEventListener('auxclick', (e) => {
+            if (e.button === 1) e.preventDefault();
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isPanning) {
+                const deltaX = e.clientX - panStartX;
+                const deltaY = e.clientY - panStartY;
+                canvasContainer.scrollLeft = startScrollLeft - deltaX;
+                canvasContainer.scrollTop = startScrollTop - deltaY;
+            }
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (isPanning && e.button === 1) {
+                isPanning = false;
+                canvasContainer.style.cursor = '';
+            }
+        });
+
+        // Mobile Touch Gestures (Single finger = Draw, 2 fingers = Pinch Zoom & Pan)
+        let touchStartDistance = 0;
+        let touchStartZoom = 1.0;
+        let touchStartScrollLeft = 0;
+        let touchStartScrollTop = 0;
+        let touchStartMidX = 0;
+        let touchStartMidY = 0;
+        let isTouchGesturing = false;
+
+        function getTouchDistance(touches) {
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function getTouchMidpoint(touches) {
+            return {
+                x: (touches[0].clientX + touches[1].clientX) / 2,
+                y: (touches[0].clientY + touches[1].clientY) / 2
+            };
+        }
+
+        function createMouseEventFromTouch(touchEvent, type) {
+            const touch = touchEvent.touches[0] || touchEvent.changedTouches[0];
+            return new MouseEvent(type, {
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                button: 0,
+                buttons: 1,
+                bubbles: true,
+                cancelable: true
+            });
+        }
+
+        canvasContainer.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                isTouchGesturing = true;
+                touchStartDistance = getTouchDistance(e.touches);
+                touchStartZoom = Canvas.getZoom();
+                const mid = getTouchMidpoint(e.touches);
+                touchStartMidX = mid.x;
+                touchStartMidY = mid.y;
+                touchStartScrollLeft = canvasContainer.scrollLeft;
+                touchStartScrollTop = canvasContainer.scrollTop;
+            } else if (e.touches.length === 1 && !isTouchGesturing && e.target === canvas) {
+                const fakeEvent = createMouseEventFromTouch(e, 'mousedown');
+                Tools.onMouseDown(fakeEvent, Canvas, Palette);
+            }
+        }, { passive: false });
+
+        canvasContainer.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && isTouchGesturing) {
+                e.preventDefault();
+                
+                // Pinch Zoom
+                const currentDist = getTouchDistance(e.touches);
+                if (touchStartDistance > 0) {
+                    const scaleFactor = currentDist / touchStartDistance;
+                    Canvas.setZoom(touchStartZoom * scaleFactor);
+                }
+
+                // 2-Finger Pan Scroll
+                const currentMid = getTouchMidpoint(e.touches);
+                const deltaX = currentMid.x - touchStartMidX;
+                const deltaY = currentMid.y - touchStartMidY;
+                canvasContainer.scrollLeft = touchStartScrollLeft - deltaX;
+                canvasContainer.scrollTop = touchStartScrollTop - deltaY;
+            } else if (e.touches.length === 1 && !isTouchGesturing && e.target === canvas) {
+                e.preventDefault();
+                const fakeEvent = createMouseEventFromTouch(e, 'mousemove');
+                Tools.onMouseMove(fakeEvent, Canvas, Palette);
+                const coords = Canvas.getCoordinates(fakeEvent);
+                updateStatusCoordinates(coords.x, coords.y);
+            }
+        }, { passive: false });
+
+        canvasContainer.addEventListener('touchend', (e) => {
+            if (isTouchGesturing) {
+                if (e.touches.length < 2) {
+                    isTouchGesturing = false;
+                }
+            } else if (e.target === canvas) {
+                const fakeEvent = createMouseEventFromTouch(e, 'mouseup');
+                Tools.onMouseUp(fakeEvent, Canvas, Palette);
+            }
+        });
+
         // Global mouseup event to clean drawing state if mouse released outside canvas
         window.addEventListener('mouseup', (e) => {
-            if (e.target !== canvas) {
+            if (e.target !== canvas && e.button !== 1) {
                 Tools.onMouseLeave(Canvas, Palette);
             }
         });
@@ -377,10 +527,16 @@ window.Paint.UI = (function () {
         const canvasHeightInput = document.getElementById('canvas-h-input');
         const applyResizeBtn = document.getElementById('apply-resize-btn');
         const dimElem = document.getElementById('status-dimensions');
+        const zoomElem = document.getElementById('status-zoom');
 
         // Click on status bar dimensions opens retro resize modal
         if (dimElem) {
             dimElem.addEventListener('click', openResizeModal);
+        }
+
+        // Click on status bar zoom resets to 100%
+        if (zoomElem) {
+            zoomElem.addEventListener('click', () => Canvas.resetZoom());
         }
 
         if (canvasWidthInput && canvasHeightInput && applyResizeBtn) {

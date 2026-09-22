@@ -305,6 +305,10 @@ body {
     position: relative;
     display: inline-block;
     line-height: 0;
+    transform-origin: center center;
+    transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
 }
 
 #paintCanvas {
@@ -514,6 +518,21 @@ body {
     background-color: #ffffff;
     color: #000080;
     font-weight: bold;
+    border-color: #000080 #ffffff #ffffff #000080;
+}
+
+.status-panel.zoom-status {
+    width: 60px;
+    cursor: pointer;
+    text-align: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: background-color 0.15s ease;
+}
+
+.status-panel.zoom-status:hover {
+    background-color: #ffffff;
+    color: #000080;
     border-color: #000080 #ffffff #ffffff #000080;
 }
 

@@ -1,11 +1,11 @@
 /**
  * Tools Module - Paint Canvas Retro
- * Implements drawing tool algorithms (line, rectangle, circle, ellipse, polygon, freehand, eraser, text, fill).
+ * Implements drawing tool algorithms (line, rectangle, circle, ellipse, polygon, freehand, eraser, text, fill, zoom).
  */
 window.Paint = window.Paint || {};
 
 window.Paint.Tools = (function () {
-    let currentTool = 'line'; // 'line', 'rect', 'circle', 'ellipse', 'polygon', 'pencil', 'eraser', 'text', 'fill'
+    let currentTool = 'line'; // 'line', 'rect', 'circle', 'ellipse', 'polygon', 'pencil', 'eraser', 'text', 'fill', 'zoom'
     
     let lineWidth = 1;
     let lineCap = 'butt';
@@ -246,6 +246,16 @@ window.Paint.Tools = (function () {
     }
 
     function onMouseDown(e, canvasManager, paletteManager) {
+        if (currentTool === 'zoom') {
+            if (e.button === 2) {
+                canvasManager.zoomOut();
+            } else {
+                canvasManager.zoomIn();
+            }
+            isDrawing = false;
+            return;
+        }
+
         const coords = canvasManager.getCoordinates(e);
         startX = coords.x;
         startY = coords.y;
@@ -279,6 +289,8 @@ window.Paint.Tools = (function () {
     }
 
     function onMouseMove(e, canvasManager, paletteManager) {
+        if (currentTool === 'zoom') return;
+
         const coords = canvasManager.getCoordinates(e);
         const currentX = coords.x;
         const currentY = coords.y;
@@ -329,7 +341,7 @@ window.Paint.Tools = (function () {
     }
 
     function onMouseUp(e, canvasManager, paletteManager) {
-        if (!isDrawing) return;
+        if (!isDrawing || currentTool === 'zoom') return;
         isDrawing = false;
 
         const coords = canvasManager.getCoordinates(e);
@@ -378,6 +390,8 @@ window.Paint.Tools = (function () {
     }
 
     function onMouseLeave(canvasManager, paletteManager) {
+        if (currentTool === 'zoom') return;
+
         if (isDrawing) {
             // Restore clean state to strip temporary guides before finishing shape
             canvasManager.restoreSnapshot();

@@ -1,6 +1,6 @@
 /**
  * Canvas Manager - Paint Canvas Retro
- * Handles canvas state, rendering context, grid overlays, guides, history (undo/redo), and image export.
+ * Handles canvas state, rendering context, grid overlays, guides, history (undo/redo), zoom, and image export.
  */
 window.Paint = window.Paint || {};
 
@@ -14,6 +14,10 @@ window.Paint.Canvas = (function () {
 
     let showGrid = false;
     let showGuides = true;
+
+    // Zoom state
+    let zoomLevel = 1.0;
+    const ZOOM_STEPS = [0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0];
 
     function init(canvasId) {
         canvas = document.getElementById(canvasId);
@@ -30,6 +34,7 @@ window.Paint.Canvas = (function () {
         // Clear canvas with white background initially
         clearCanvas(true);
         saveHistory();
+        resetZoom();
     }
 
     function getCanvas() {
@@ -131,6 +136,56 @@ window.Paint.Canvas = (function () {
         return showGuides;
     }
 
+    // Zoom management
+    function setZoom(level) {
+        zoomLevel = Math.max(0.25, Math.min(8.0, parseFloat(level) || 1.0));
+        applyZoom();
+        updateZoomUI();
+        return zoomLevel;
+    }
+
+    function zoomIn() {
+        const nextStep = ZOOM_STEPS.find(s => s > zoomLevel + 0.01);
+        if (nextStep) {
+            setZoom(nextStep);
+        } else {
+            setZoom(zoomLevel * 1.5);
+        }
+        return zoomLevel;
+    }
+
+    function zoomOut() {
+        const prevSteps = ZOOM_STEPS.filter(s => s < zoomLevel - 0.01);
+        if (prevSteps.length > 0) {
+            setZoom(prevSteps[prevSteps.length - 1]);
+        } else {
+            setZoom(zoomLevel / 1.5);
+        }
+        return zoomLevel;
+    }
+
+    function resetZoom() {
+        setZoom(1.0);
+    }
+
+    function applyZoom() {
+        const wrapper = document.getElementById('canvas-wrapper');
+        if (wrapper) {
+            wrapper.style.transform = `scale(${zoomLevel})`;
+        }
+    }
+
+    function updateZoomUI() {
+        const zoomElem = document.getElementById('status-zoom');
+        if (zoomElem) {
+            zoomElem.textContent = `${Math.round(zoomLevel * 100)}%`;
+        }
+    }
+
+    function getZoom() {
+        return zoomLevel;
+    }
+
     function resize(newWidth, newHeight) {
         if (!canvas || !ctx) return;
         const tempCanvas = document.createElement('canvas');
@@ -220,6 +275,11 @@ window.Paint.Canvas = (function () {
         toggleGrid,
         setGuidesVisible,
         toggleGuides,
+        setZoom,
+        zoomIn,
+        zoomOut,
+        resetZoom,
+        getZoom,
         resize,
         saveHistory,
         undo,
