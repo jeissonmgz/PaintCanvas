@@ -309,12 +309,33 @@ body {
     transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1);
     image-rendering: pixelated;
     image-rendering: crisp-edges;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+    background-color: #ffffff;
+}
+
+#gridCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    pointer-events: none;
+    display: block;
 }
 
 #paintCanvas {
-    background-color: #ffffff;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 2;
+    background-color: transparent;
     cursor: crosshair;
+    display: block;
+}
+
+#guidesCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    pointer-events: none;
     display: block;
 }
 

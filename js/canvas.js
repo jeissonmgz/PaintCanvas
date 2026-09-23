@@ -1,12 +1,20 @@
 /**
  * Canvas Manager - Paint Canvas Retro
- * Handles canvas state, rendering context, grid overlays, guides, history (undo/redo), zoom, and image export.
+ * Implements a 3-Layer Architecture:
+ * - Bottom Layer (gridCanvas, z-index 1): Renders canvas white background and grid overlay.
+ * - Middle Layer (paintCanvas, z-index 2): User's primary artwork canvas (history, localStorage, export).
+ * - Top Layer (guidesCanvas, z-index 3): Alignment guides and crosshairs overlay.
  */
 window.Paint = window.Paint || {};
 
 window.Paint.Canvas = (function () {
-    let canvas = null;
+    let canvas = null;       // Middle layer: user paint canvas
     let ctx = null;
+    let gridCanvas = null;   // Bottom layer: background & grid
+    let gridCtx = null;
+    let guidesCanvas = null; // Top layer: crosshair guides
+    let guidesCtx = null;
+
     let snapshot = null;
     let historyStack = [];
     let historyStep = -1;
@@ -23,18 +31,37 @@ window.Paint.Canvas = (function () {
         canvas = document.getElementById(canvasId);
         if (!canvas) return;
         ctx = canvas.getContext('2d');
-        
-        // Initial setup
+
+        gridCanvas = document.getElementById('gridCanvas');
+        if (gridCanvas) gridCtx = gridCanvas.getContext('2d');
+
+        guidesCanvas = document.getElementById('guidesCanvas');
+        if (guidesCanvas) guidesCtx = guidesCanvas.getContext('2d');
+
+        // Initial setup for paint canvas context
         ctx.lineCap = 'butt';
         ctx.lineJoin = 'miter';
         ctx.lineWidth = 1;
         ctx.strokeStyle = '#000000';
         ctx.fillStyle = '#ffffff';
 
-        // Clear canvas with white background initially
+        syncLayerDimensions();
+        drawGrid();
         clearCanvas(true);
         saveHistory();
         resetZoom();
+    }
+
+    function syncLayerDimensions() {
+        if (!canvas) return;
+        if (gridCanvas) {
+            gridCanvas.width = canvas.width;
+            gridCanvas.height = canvas.height;
+        }
+        if (guidesCanvas) {
+            guidesCanvas.width = canvas.width;
+            guidesCanvas.height = canvas.height;
+        }
     }
 
     function getCanvas() {
@@ -45,15 +72,28 @@ window.Paint.Canvas = (function () {
         return ctx;
     }
 
+    function getGridCanvas() {
+        return gridCanvas;
+    }
+
+    function getGuidesCanvas() {
+        return guidesCanvas;
+    }
+
+    /**
+     * Clears user drawing layer (middle canvas) and top guides layer.
+     */
     function clearCanvas(fillWhite = true) {
         if (!ctx || !canvas) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (fillWhite) {
+            // Fill background white on paint layer to maintain opaque artwork baseline
             ctx.save();
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.restore();
         }
+        clearGuides();
         takeSnapshot();
     }
 
@@ -67,71 +107,92 @@ window.Paint.Canvas = (function () {
         ctx.putImageData(snapshot, 0, 0);
     }
 
+    /**
+     * Renders background color and grid lines ONCE on bottom layer (gridCanvas).
+     */
     function drawGrid() {
-        if (!showGrid || !ctx || !canvas) return;
-        ctx.save();
-        ctx.lineWidth = 0.5;
-        ctx.strokeStyle = '#0000ff33';
-        
-        for (let x = 0; x < canvas.width; x += 20) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, canvas.height);
-            ctx.stroke();
+        if (!gridCtx || !gridCanvas) return;
+        gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+        gridCtx.save();
+        gridCtx.fillStyle = '#ffffff';
+        gridCtx.fillRect(0, 0, gridCanvas.width, gridCanvas.height);
+
+        if (showGrid) {
+            gridCtx.lineWidth = 0.5;
+            gridCtx.strokeStyle = '#0000ff33';
+            
+            for (let x = 0; x < gridCanvas.width; x += 20) {
+                gridCtx.beginPath();
+                gridCtx.moveTo(x, 0);
+                gridCtx.lineTo(x, gridCanvas.height);
+                gridCtx.stroke();
+            }
+            for (let y = 0; y < gridCanvas.height; y += 20) {
+                gridCtx.beginPath();
+                gridCtx.moveTo(0, y);
+                gridCtx.lineTo(gridCanvas.width, y);
+                gridCtx.stroke();
+            }
         }
-        for (let y = 0; y < canvas.height; y += 20) {
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(canvas.width, y);
-            ctx.stroke();
-        }
-        ctx.restore();
+        gridCtx.restore();
     }
 
+    /**
+     * Renders alignment crosshair guides on top layer (guidesCanvas).
+     */
     function drawGuides(x, y) {
-        if (!showGuides || !ctx || !canvas) return;
-        ctx.save();
-        ctx.lineWidth = 0.5;
-        ctx.setLineDash([4, 4]);
-        ctx.strokeStyle = '#0066cc';
-        
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
+        if (!guidesCtx || !guidesCanvas) return;
+        guidesCtx.clearRect(0, 0, guidesCanvas.width, guidesCanvas.height);
 
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
+        if (!showGuides || x === null || y === null || x === undefined || y === undefined) {
+            return;
+        }
 
-        ctx.restore();
+        guidesCtx.save();
+        guidesCtx.lineWidth = 0.5;
+        guidesCtx.setLineDash([4, 4]);
+        guidesCtx.strokeStyle = '#0066cc';
+
+        guidesCtx.beginPath();
+        guidesCtx.moveTo(x, 0);
+        guidesCtx.lineTo(x, guidesCanvas.height);
+        guidesCtx.stroke();
+
+        guidesCtx.beginPath();
+        guidesCtx.moveTo(0, y);
+        guidesCtx.lineTo(guidesCanvas.width, y);
+        guidesCtx.stroke();
+
+        guidesCtx.restore();
+    }
+
+    function clearGuides() {
+        if (!guidesCtx || !guidesCanvas) return;
+        guidesCtx.clearRect(0, 0, guidesCanvas.width, guidesCanvas.height);
     }
 
     function setGridVisible(visible) {
-        showGrid = visible;
-        if (snapshot) {
-            restoreSnapshot();
-            if (showGrid) drawGrid();
-        }
+        showGrid = !!visible;
+        drawGrid();
     }
 
     function toggleGrid() {
         showGrid = !showGrid;
+        drawGrid();
         return showGrid;
     }
 
     function setGuidesVisible(visible) {
-        showGuides = visible;
-        if (!showGuides && snapshot) {
-            restoreSnapshot();
+        showGuides = !!visible;
+        if (!showGuides) {
+            clearGuides();
         }
     }
 
     function toggleGuides() {
         showGuides = !showGuides;
-        if (!showGuides && snapshot) {
-            restoreSnapshot();
+        if (!showGuides) {
+            clearGuides();
         }
         return showGuides;
     }
@@ -199,11 +260,16 @@ window.Paint.Canvas = (function () {
         // Set canvas dimensions
         canvas.width = width || img.width;
         canvas.height = height || img.height;
+        syncLayerDimensions();
 
         // Clear canvas with white background and draw loaded image
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
+
+        // Update bottom and top layers
+        drawGrid();
+        clearGuides();
 
         // Reset history stack for the loaded project baseline
         historyStack = [];
@@ -227,12 +293,16 @@ window.Paint.Canvas = (function () {
 
         canvas.width = newWidth;
         canvas.height = newHeight;
+        syncLayerDimensions();
 
         // Fill background white for expanded area
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, newWidth, newHeight);
 
         ctx.drawImage(tempCanvas, 0, 0);
+
+        drawGrid();
+        clearGuides();
         takeSnapshot();
         saveHistory();
     }
@@ -267,6 +337,7 @@ window.Paint.Canvas = (function () {
 
         canvas.width = newW;
         canvas.height = newH;
+        syncLayerDimensions();
 
         // Fill background white for expanded area
         ctx.fillStyle = '#ffffff';
@@ -275,6 +346,8 @@ window.Paint.Canvas = (function () {
         // Draw previous canvas content shifted by offset
         ctx.drawImage(tempCanvas, offsetX, offsetY);
 
+        drawGrid();
+        clearGuides();
         takeSnapshot();
         saveHistory();
     }
@@ -346,13 +419,33 @@ window.Paint.Canvas = (function () {
         return false;
     }
 
+    /**
+     * Generates a clean PNG Data URL containing only user artwork on white background.
+     * Guaranteed 100% free of grid lines or guide lines.
+     */
+    function getCleanDataUrl() {
+        if (!canvas) return '';
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+
+        // Solid white background
+        tempCtx.fillStyle = '#ffffff';
+        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+        // Draw middle layer artwork
+        tempCtx.drawImage(canvas, 0, 0);
+
+        return tempCanvas.toDataURL('image/png');
+    }
+
     function exportImage(filename = 'dibujo_paint.png') {
         if (!canvas) return;
-        // Restore clean snapshot before exporting to remove temporary guide lines
-        restoreSnapshot();
+        clearGuides();
         const link = document.createElement('a');
         link.download = filename;
-        link.href = canvas.toDataURL('image/png');
+        link.href = getCleanDataUrl();
         link.click();
     }
 
@@ -371,11 +464,15 @@ window.Paint.Canvas = (function () {
         init,
         getCanvas,
         getContext,
+        getGridCanvas,
+        getGuidesCanvas,
+        syncLayerDimensions,
         clearCanvas,
         takeSnapshot,
         restoreSnapshot,
         drawGrid,
         drawGuides,
+        clearGuides,
         setGridVisible,
         toggleGrid,
         setGuidesVisible,
@@ -394,6 +491,7 @@ window.Paint.Canvas = (function () {
         setOnCanvasChange,
         undo,
         redo,
+        getCleanDataUrl,
         exportImage,
         getCoordinates,
         isGridVisible: () => showGrid,

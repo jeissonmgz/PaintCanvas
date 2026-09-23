@@ -1029,14 +1029,18 @@ window.Paint.UI = (function () {
     }
 
     function openExplorerModal() {
-        saveCurrentToStorage(false);
+        try {
+            saveCurrentToStorage(false);
+        } catch (err) {
+            console.error('Error auto-saving before opening file explorer:', err);
+        }
 
         const modal = document.getElementById('explorer-modal');
         if (modal) {
             modal.style.display = 'flex';
             const searchInput = document.getElementById('exp-search-input');
             if (searchInput) searchInput.value = '';
-            selectedExplorerId = currentTabProjectId || window.Paint.Storage.getActiveProjectId();
+            selectedExplorerId = currentTabProjectId || (window.Paint && window.Paint.Storage ? window.Paint.Storage.getActiveProjectId() : null);
             renderExplorerFileList('');
         }
     }

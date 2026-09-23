@@ -871,7 +871,6 @@ window.Paint.Tools = (function () {
                 drawFloatingSelection(canvasManager);
             } else {
                 canvasManager.restoreSnapshot();
-                if (canvasManager.isGridVisible()) canvasManager.drawGrid();
                 if (canvasManager.isGuidesVisible()) canvasManager.drawGuides(currentX, currentY);
             }
             lastX = currentX;
@@ -894,7 +893,6 @@ window.Paint.Tools = (function () {
             // Live Preview shape
             canvasManager.restoreSnapshot();
             applyContextStyles(ctx, paletteManager);
-            if (canvasManager.isGridVisible()) canvasManager.drawGrid();
 
             switch (currentTool) {
                 case 'line':

@@ -1061,7 +1061,7 @@ window.Paint.I18n = (function () {
             }
         });
 
-        const placeholderNodes = document.forEach ? document.querySelectorAll('[data-i18n-placeholder]') : [];
+        const placeholderNodes = document.querySelectorAll('[data-i18n-placeholder]');
         placeholderNodes.forEach(node => {
             const key = node.dataset.i18nPlaceholder;
             if (key) {

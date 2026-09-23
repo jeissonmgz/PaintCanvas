@@ -47,7 +47,9 @@ window.Paint.Storage = (function () {
         const projects = listProjects();
         const id = existingId || `proj_${Date.now()}`;
         const cleanTitle = (title && title.trim()) ? title.trim() : 'Sin título.png';
-        const dataUrl = canvas.toDataURL('image/png');
+        const dataUrl = (window.Paint && window.Paint.Canvas && window.Paint.Canvas.getCleanDataUrl) 
+            ? window.Paint.Canvas.getCleanDataUrl() 
+            : canvas.toDataURL('image/png');
 
         const projectData = {
             id: id,

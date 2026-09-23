@@ -257,7 +257,12 @@
             <!-- Canvas Viewport -->
             <div class="canvas-container">
                 <div class="canvas-wrapper" id="canvas-wrapper">
+                    <!-- Capa Inferior: Cuadrícula y fondo -->
+                    <canvas id="gridCanvas" width="900" height="600"></canvas>
+                    <!-- Capa Media: Lienzo de dibujo del usuario -->
                     <canvas id="paintCanvas" width="900" height="600"></canvas>
+                    <!-- Capa Superior: Guías de alineación -->
+                    <canvas id="guidesCanvas" width="900" height="600"></canvas>
 
                     <!-- Interactive Canvas Resize Handle Dots -->
                     <div class="resize-handle handle-nw" data-handle="nw" title="Ajustar tamaño"></div>
