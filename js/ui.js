@@ -10,6 +10,9 @@ window.Paint.UI = (function () {
     const Palette = window.Paint.Palette;
 
     function init() {
+        if (window.Paint && window.Paint.Modal) {
+            window.Paint.Modal.overrideGlobals();
+        }
         setupMenuDropdowns();
         setupToolButtons();
         setupToolOptions();
@@ -44,8 +47,12 @@ window.Paint.UI = (function () {
 
         // Menu item actions
         const actions = {
-            'action-new': () => {
-                if (confirm('¿Desea crear un nuevo lienzo? Se perderán los cambios no guardados.')) {
+            'action-new': async () => {
+                const confirmed = await window.Paint.Modal.confirm(
+                    '¿Desea crear un nuevo lienzo? Se perderán los cambios no guardados.',
+                    'Nuevo Lienzo'
+                );
+                if (confirmed) {
                     Canvas.clearCanvas(true);
                     Canvas.saveHistory();
                 }
@@ -69,7 +76,12 @@ window.Paint.UI = (function () {
                 document.getElementById('action-guides').classList.toggle('checked', active);
             },
             'action-resize': () => openResizeModal(),
-            'action-about': () => alert('Paint Canvas Retro (Vanilla JS)\nInspirado en el clásico Microsoft Paint (Windows XP/98).\n¡Disfruta creando tu arte!')
+            'action-about': () => {
+                window.Paint.Modal.alert(
+                    'Paint Canvas Retro (Vanilla JS)\nInspirado en el clásico Microsoft Paint (Windows XP/98).\n¡Disfruta creando tu arte!',
+                    'Acerca de Paint Canvas'
+                );
+            }
         };
 
         Object.keys(actions).forEach(id => {
@@ -568,7 +580,10 @@ window.Paint.UI = (function () {
                     updateStatusBarDimensions();
                     closeResizeModal();
                 } else {
-                    alert('Por favor ingrese dimensiones válidas en píxeles.');
+                    window.Paint.Modal.warning(
+                        'Por favor ingrese dimensiones válidas en píxeles.',
+                        'Tamaño del Lienzo'
+                    );
                 }
             };
 

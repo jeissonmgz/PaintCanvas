@@ -420,14 +420,25 @@ window.Paint.Tools = (function () {
             ctx.fillStyle = ctx.strokeStyle;
             ctx.fill();
         } else if (currentTool === 'text') {
-            const input = prompt('Ingrese el texto a dibujar:', textContent);
-            if (input !== null) {
-                textContent = input;
-                drawText(ctx, startX, startY, textContent);
-                canvasManager.takeSnapshot();
-                canvasManager.saveHistory();
-            }
             isDrawing = false;
+            if (window.Paint && window.Paint.Modal) {
+                window.Paint.Modal.prompt('Ingrese el texto a dibujar:', textContent, 'Texto').then(input => {
+                    if (input !== null && input !== undefined && input !== '') {
+                        textContent = input;
+                        drawText(ctx, startX, startY, textContent);
+                        canvasManager.takeSnapshot();
+                        canvasManager.saveHistory();
+                    }
+                });
+            } else {
+                const input = prompt('Ingrese el texto a dibujar:', textContent);
+                if (input !== null && input !== '') {
+                    textContent = input;
+                    drawText(ctx, startX, startY, textContent);
+                    canvasManager.takeSnapshot();
+                    canvasManager.saveHistory();
+                }
+            }
         } else if (currentTool === 'fill') {
             const rgba = paletteManager ? paletteManager.getActiveRgbaArray() : [0, 0, 0, 255];
             floodFill(canvasManager.getCanvas(), ctx, startX, startY, rgba);
