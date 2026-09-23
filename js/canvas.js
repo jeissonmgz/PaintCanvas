@@ -206,6 +206,48 @@ window.Paint.Canvas = (function () {
         saveHistory();
     }
 
+    function expandDirection(direction, amount = 100) {
+        if (!canvas || !ctx) return;
+
+        const currentW = canvas.width;
+        const currentH = canvas.height;
+        let newW = currentW;
+        let newH = currentH;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        if (direction === 'n' || direction === 'top') {
+            newH = currentH + amount;
+            offsetY = amount;
+        } else if (direction === 's' || direction === 'bottom') {
+            newH = currentH + amount;
+        } else if (direction === 'w' || direction === 'left') {
+            newW = currentW + amount;
+            offsetX = amount;
+        } else if (direction === 'e' || direction === 'right') {
+            newW = currentW + amount;
+        }
+
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = currentW;
+        tempCanvas.height = currentH;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(canvas, 0, 0);
+
+        canvas.width = newW;
+        canvas.height = newH;
+
+        // Fill background white for expanded area
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, newW, newH);
+
+        // Draw previous canvas content shifted by offset
+        ctx.drawImage(tempCanvas, offsetX, offsetY);
+
+        takeSnapshot();
+        saveHistory();
+    }
+
     function saveHistory() {
         if (!ctx || !canvas) return;
         // Truncate history after current step
@@ -281,6 +323,7 @@ window.Paint.Canvas = (function () {
         resetZoom,
         getZoom,
         resize,
+        expandDirection,
         saveHistory,
         undo,
         redo,

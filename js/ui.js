@@ -19,6 +19,7 @@ window.Paint.UI = (function () {
         setupColorSwatches();
         setupCanvasEvents();
         setupResizeHandles();
+        setupCardinalExpansionButtons();
         setupWindowControls();
         setupKeyboardShortcuts();
         updateStatusBarDimensions();
@@ -602,6 +603,20 @@ window.Paint.UI = (function () {
 
                 window.addEventListener('mousemove', onMouseMove);
                 window.addEventListener('mouseup', onMouseUp);
+            });
+        });
+    }
+
+    function setupCardinalExpansionButtons() {
+        const expandBtns = document.querySelectorAll('.cardinal-expand-btn');
+        expandBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const dir = btn.dataset.expand;
+                if (dir) {
+                    Canvas.expandDirection(dir, 100);
+                    updateStatusBarDimensions();
+                }
             });
         });
     }
