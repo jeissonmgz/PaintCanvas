@@ -50,17 +50,16 @@ jobs:
         with:
           ref: ${{ steps.resolve-ref.outputs.TARGET_REF }}
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build project
-        run: npm run build
+      - name: Prepare static site files
+        run: |
+          mkdir -p _site
+          rsync -av \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.gitignore' \
+            --exclude='.gitattributes' \
+            --exclude='_site' \
+            ./ _site/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -68,7 +67,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: './_site'
 
       - name: Deploy to GitHub Pages
         id: deployment
@@ -85,7 +84,7 @@ jobs:
 
       - name: Create and Push Tag
         run: |
-          VERSION="v$(node -p "require('./package.json').version")"
+          VERSION="v$(jq -r .version package.json)"
           echo "Target tag version: $VERSION"
           git fetch --tags
           if git rev-parse "$VERSION" >/dev/null 2>&1; then

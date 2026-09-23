@@ -17,15 +17,9 @@ jobs:
       - name: Checkout PR Code
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
       - name: Verify Version is Not Already Published Tag
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(jq -r .version package.json)
           TAG_V="v$VERSION"
           TAG_PLAIN="$VERSION"
 
@@ -40,9 +34,3 @@ jobs:
           else
             echo "Éxito: La versión '$VERSION' es nueva y válida."
           fi
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Verify project build
-        run: npm run build
