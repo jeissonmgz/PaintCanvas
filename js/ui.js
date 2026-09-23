@@ -922,10 +922,12 @@ window.Paint.UI = (function () {
                 const Storage = window.Paint.Storage;
                 const proj = Storage.getProject(selectedExplorerId);
                 if (proj) {
-                    await Storage.loadProject(proj, Canvas);
+                    Storage.setActiveProjectId(proj.id);
                     const titleInput = document.getElementById('project-title-input');
                     if (titleInput) titleInput.value = proj.title;
                     document.title = `${proj.title} - Paint Canvas Retro`;
+
+                    await Storage.loadProject(proj, Canvas);
                     updateStatusBarDimensions();
                     closeExplorerModal();
                     updateStatusText(`Canvas '${proj.title}' cargado.`);

@@ -140,17 +140,22 @@ window.Paint.Storage = (function () {
                 return;
             }
 
+            // Immediately set active project ID to prevent race conditions during save
+            setActiveProjectId(project.id);
+
             const img = new Image();
             img.onload = () => {
-                // Resize canvas to match project dimensions
-                CanvasModule.resize(project.width || img.width, project.height || img.height);
-                const ctx = CanvasModule.getContext();
-                if (ctx) {
-                    ctx.clearRect(0, 0, project.width, project.height);
-                    ctx.drawImage(img, 0, 0);
-                    CanvasModule.saveHistory();
+                if (CanvasModule.loadProjectImage) {
+                    CanvasModule.loadProjectImage(img, project.width, project.height);
+                } else {
+                    CanvasModule.resize(project.width || img.width, project.height || img.height);
+                    const ctx = CanvasModule.getContext();
+                    if (ctx) {
+                        ctx.clearRect(0, 0, project.width, project.height);
+                        ctx.drawImage(img, 0, 0);
+                        CanvasModule.saveHistory();
+                    }
                 }
-                setActiveProjectId(project.id);
                 resolve(true);
             };
             img.onerror = () => resolve(false);

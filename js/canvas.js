@@ -186,6 +186,30 @@ window.Paint.Canvas = (function () {
         return zoomLevel;
     }
 
+    function loadProjectImage(img, width, height) {
+        if (!canvas || !ctx || !img) return;
+
+        // Reset zoom level to 100%
+        zoomLevel = 1.0;
+        applyZoom();
+        updateZoomUI();
+
+        // Set canvas dimensions
+        canvas.width = width || img.width;
+        canvas.height = height || img.height;
+
+        // Clear canvas with white background and draw loaded image
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+
+        // Reset history stack for the loaded project
+        historyStack = [];
+        historyStep = -1;
+        takeSnapshot();
+        saveHistory();
+    }
+
     function resize(newWidth, newHeight) {
         if (!canvas || !ctx) return;
         const tempCanvas = document.createElement('canvas');
@@ -322,6 +346,7 @@ window.Paint.Canvas = (function () {
         zoomOut,
         resetZoom,
         getZoom,
+        loadProjectImage,
         resize,
         expandDirection,
         saveHistory,
