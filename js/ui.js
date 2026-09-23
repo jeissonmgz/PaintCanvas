@@ -115,6 +115,10 @@ window.Paint.UI = (function () {
         if (polygonOpt) {
             polygonOpt.style.display = (toolName === 'polygon') ? 'inline-flex' : 'none';
         }
+        const textOpt = document.getElementById('opt-text-options');
+        if (textOpt) {
+            textOpt.style.display = (toolName === 'text') ? 'block' : 'none';
+        }
     }
 
     function setupToolOptions() {
@@ -136,11 +140,54 @@ window.Paint.UI = (function () {
             sidesInput.addEventListener('change', (e) => Tools.setPolygonSides(e.target.value));
         }
 
+        // Text Formatting Options
+        const fontFamilySelect = document.getElementById('text-font-family');
+        if (fontFamilySelect) {
+            fontFamilySelect.addEventListener('change', (e) => Tools.setFontFamily(e.target.value, Palette));
+        }
+
+        const fontSizeInput = document.getElementById('text-font-size');
+        if (fontSizeInput) {
+            const handleSizeChange = (e) => Tools.setFontSize(e.target.value, Palette);
+            fontSizeInput.addEventListener('input', handleSizeChange);
+            fontSizeInput.addEventListener('change', handleSizeChange);
+        }
+
+        const boldBtn = document.getElementById('text-bold');
+        if (boldBtn) {
+            boldBtn.addEventListener('click', () => {
+                boldBtn.classList.toggle('active');
+                Tools.setTextBold(boldBtn.classList.contains('active'), Palette);
+            });
+        }
+
+        const italicBtn = document.getElementById('text-italic');
+        if (italicBtn) {
+            italicBtn.addEventListener('click', () => {
+                italicBtn.classList.toggle('active');
+                Tools.setTextItalic(italicBtn.classList.contains('active'), Palette);
+            });
+        }
+
+        const strikeBtn = document.getElementById('text-strikethrough');
+        if (strikeBtn) {
+            strikeBtn.addEventListener('click', () => {
+                strikeBtn.classList.toggle('active');
+                Tools.setTextStrikethrough(strikeBtn.classList.contains('active'), Palette);
+            });
+        }
+
+        const alignSelect = document.getElementById('text-align');
+        if (alignSelect) {
+            alignSelect.addEventListener('change', (e) => Tools.setTextAlign(e.target.value, Palette));
+        }
+
         // Stroke & Fill toggles
         const strokeCheck = document.getElementById('enable-stroke');
         if (strokeCheck) {
             strokeCheck.addEventListener('change', (e) => {
                 Tools.setStrokeEnabled(e.target.checked);
+                Tools.updateTextOverlayStyles(Palette);
                 syncCheckboxStates();
             });
         }
@@ -156,6 +203,7 @@ window.Paint.UI = (function () {
                         updateColorIndicators();
                     }
                 }
+                Tools.updateTextOverlayStyles(Palette);
                 syncCheckboxStates();
             });
         }
@@ -278,12 +326,27 @@ window.Paint.UI = (function () {
         if (fgBox) fgBox.style.backgroundColor = Palette.getForegroundColor();
         if (bgBox) bgBox.style.backgroundColor = Palette.getBackgroundColor();
         if (customColorInput) customColorInput.value = Palette.getActiveColorHex();
+
+        if (Tools && Tools.updateTextOverlayStyles) {
+            Tools.updateTextOverlayStyles(Palette);
+        }
     }
 
     function setupCanvasEvents() {
         const canvas = Canvas.getCanvas();
         const canvasContainer = document.querySelector('.canvas-container');
         if (!canvas || !canvasContainer) return;
+
+        // Auto-commit active text overlay when clicking outside canvas/wrapper and outside text options panel
+        document.addEventListener('pointerdown', (e) => {
+            const wrapper = document.getElementById('canvas-wrapper');
+            const optBox = document.getElementById('opt-text-options');
+            if (Tools.hasActiveTextOverlay && Tools.hasActiveTextOverlay()) {
+                if (wrapper && !wrapper.contains(e.target) && optBox && !optBox.contains(e.target)) {
+                    Tools.commitActiveTextOverlay(Canvas, Palette);
+                }
+            }
+        });
 
         // Mouse drawing events
         canvas.addEventListener('mousedown', (e) => {

@@ -155,6 +155,44 @@
                         <input type="number" id="polygon-sides" class="retro-input" min="3" max="12" value="3"/>
                     </div>
 
+                    <!-- Text Formatting Options Subpanel -->
+                    <div id="opt-text-options" style="display: none; border-top: 1px dotted #808080; padding-top: 6px; margin-top: 6px;">
+                        <div class="option-row">
+                            <label for="text-font-family">Fuente:</label>
+                            <select id="text-font-family" class="retro-select" style="max-width: 95px;">
+                                <option value="Arial">Arial</option>
+                                <option value="Tahoma" selected>Tahoma</option>
+                                <option value="MS Sans Serif">MS Sans</option>
+                                <option value="Times New Roman">Times</option>
+                                <option value="Courier New">Courier</option>
+                                <option value="Comic Sans MS">Comic</option>
+                                <option value="Impact">Impact</option>
+                                <option value="Segoe UI">Segoe UI</option>
+                                <option value="Georgia">Georgia</option>
+                            </select>
+                        </div>
+
+                        <div class="option-row">
+                            <label for="text-font-size">Tamaño:</label>
+                            <input type="number" id="text-font-size" class="retro-input" min="8" max="144" value="20"/>
+                        </div>
+
+                        <div class="option-row text-style-btns">
+                            <button type="button" class="btn-retro text-toggle-btn" id="text-bold" title="Negrita (Bold)"><b>N</b></button>
+                            <button type="button" class="btn-retro text-toggle-btn" id="text-italic" title="Cursiva (Italic)"><i>K</i></button>
+                            <button type="button" class="btn-retro text-toggle-btn" id="text-strikethrough" title="Tachado (Strikethrough)"><s>S</s></button>
+                        </div>
+
+                        <div class="option-row">
+                            <label for="text-align">Alinear:</label>
+                            <select id="text-align" class="retro-select" style="max-width: 95px;">
+                                <option value="left" selected>Izquierda</option>
+                                <option value="center">Centro</option>
+                                <option value="right">Derecha</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="option-row" style="margin-top: 4px;">
                         <label><input type="checkbox" id="enable-stroke" checked/> Contorno</label>
                     </div>

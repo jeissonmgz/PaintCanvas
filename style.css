@@ -590,6 +590,47 @@ body {
 }
 
 /* --------------------------------------------------------------------------
+   Text Tool Formatting Options & Floating Canvas Text Input
+   -------------------------------------------------------------------------- */
+.text-style-btns {
+    display: flex;
+    gap: 3px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.text-toggle-btn {
+    flex: 1;
+    text-align: center;
+    padding: 2px 0;
+    font-size: 11px;
+    font-family: 'Tahoma', sans-serif;
+    min-width: 24px;
+}
+
+.text-toggle-btn.active {
+    background-color: #d4d0c8;
+    border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.canvas-text-input {
+    position: absolute;
+    background: transparent;
+    border: 1px dashed #000000;
+    outline: 1px dashed #ffffff;
+    box-sizing: border-box;
+    padding: 3px 4px;
+    margin: 0;
+    resize: both;
+    overflow: hidden;
+    z-index: 100;
+    white-space: pre;
+    line-height: 1.2;
+    min-width: 120px;
+    min-height: 40px;
+}
+
+/* --------------------------------------------------------------------------
    Retro Dialog Modals (Alert, Warning, Confirm, Prompt)
    -------------------------------------------------------------------------- */
 .retro-dialog-win {

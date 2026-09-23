@@ -14,7 +14,13 @@ window.Paint.Tools = (function () {
     let polygonSides = 3;
     let textContent = 'Texto';
     let fontSize = 20;
-    let fontFamily = 'Arial';
+    let fontFamily = 'Tahoma';
+    let isBold = false;
+    let isItalic = false;
+    let isStrikethrough = false;
+    let textAlign = 'left';
+    let activeTextOverlay = null;
+    let textOverlayCoords = { x: 0, y: 0 };
 
     let isDrawing = false;
     let startX = 0;
@@ -34,9 +40,12 @@ window.Paint.Tools = (function () {
     let dragOffsetX = 0;
     let dragOffsetY = 0;
 
-    function setTool(toolName, canvasManager) {
+    function setTool(toolName, canvasManager, paletteManager) {
         if (hasSelection && toolName !== currentTool) {
             commitActiveSelection(canvasManager);
+        }
+        if (activeTextOverlay && toolName !== 'text') {
+            commitActiveTextOverlay(canvasManager, paletteManager);
         }
         currentTool = toolName;
     }
@@ -75,6 +84,166 @@ window.Paint.Tools = (function () {
         if (text !== undefined) textContent = text;
         if (size !== undefined) fontSize = parseInt(size) || 20;
         if (family !== undefined) fontFamily = family;
+    }
+
+    function setFontFamily(family, paletteManager) {
+        fontFamily = family || 'Tahoma';
+        updateTextOverlayStyles(paletteManager);
+    }
+
+    function setFontSize(size, paletteManager) {
+        fontSize = Math.max(8, parseInt(size, 10) || 20);
+        updateTextOverlayStyles(paletteManager);
+    }
+
+    function setTextBold(bold, paletteManager) {
+        isBold = !!bold;
+        updateTextOverlayStyles(paletteManager);
+    }
+
+    function setTextItalic(italic, paletteManager) {
+        isItalic = !!italic;
+        updateTextOverlayStyles(paletteManager);
+    }
+
+    function setTextStrikethrough(strikethrough, paletteManager) {
+        isStrikethrough = !!strikethrough;
+        updateTextOverlayStyles(paletteManager);
+    }
+
+    function setTextAlign(align, paletteManager) {
+        textAlign = align || 'left';
+        updateTextOverlayStyles(paletteManager);
+    }
+
+    function autoFitTextarea(textarea) {
+        if (!textarea) return;
+
+        // Auto height adjustment based on line breaks and scrollHeight
+        textarea.style.height = 'auto';
+        const calcH = Math.max(fontSize * 1.5, textarea.scrollHeight + 6);
+        textarea.style.height = `${calcH}px`;
+
+        // Auto width adjustment based on canvas font measurement of the longest line
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        let fontStr = '';
+        if (isItalic) fontStr += 'italic ';
+        if (isBold) fontStr += 'bold ';
+        fontStr += `${fontSize}px "${fontFamily}", Tahoma, sans-serif`;
+        tempCtx.font = fontStr;
+
+        const lines = textarea.value.split('\n');
+        let maxLineWidth = 0;
+        lines.forEach(line => {
+            const w = tempCtx.measureText(line || '').width;
+            if (w > maxLineWidth) maxLineWidth = w;
+        });
+
+        const minWidth = 120;
+        const paddingRight = Math.max(30, fontSize * 1.5);
+        const calcW = Math.ceil(maxLineWidth + paddingRight);
+        textarea.style.width = `${Math.max(minWidth, calcW)}px`;
+    }
+
+    function updateTextOverlayStyles(paletteManager) {
+        if (!activeTextOverlay) return;
+        const fgColor = paletteManager ? paletteManager.getForegroundColor() : '#000000';
+        const bgColor = paletteManager ? paletteManager.getBackgroundColor() : '#ffffff';
+
+        activeTextOverlay.style.fontFamily = `"${fontFamily}", Tahoma, sans-serif`;
+        activeTextOverlay.style.fontSize = `${fontSize}px`;
+        activeTextOverlay.style.fontWeight = isBold ? 'bold' : 'normal';
+        activeTextOverlay.style.fontStyle = isItalic ? 'italic' : 'normal';
+        activeTextOverlay.style.textDecoration = isStrikethrough ? 'line-through' : 'none';
+        activeTextOverlay.style.textAlign = textAlign;
+        activeTextOverlay.style.color = fgColor;
+        activeTextOverlay.style.backgroundColor = fillEnabled ? bgColor : 'transparent';
+
+        autoFitTextarea(activeTextOverlay);
+    }
+
+    function commitActiveTextOverlay(canvasManager, paletteManager) {
+        if (!activeTextOverlay) return;
+
+        const text = activeTextOverlay.value;
+        const boxWidth = activeTextOverlay.clientWidth || 180;
+
+        if (text && text.trim().length > 0) {
+            const ctx = canvasManager.getContext();
+            ctx.save();
+
+            let fontStr = '';
+            if (isItalic) fontStr += 'italic ';
+            if (isBold) fontStr += 'bold ';
+            fontStr += `${fontSize}px "${fontFamily}", Tahoma, sans-serif`;
+
+            ctx.font = fontStr;
+            ctx.textAlign = textAlign;
+            ctx.textBaseline = 'top';
+
+            const lines = text.split('\n');
+            const lineHeight = fontSize * 1.2;
+            const fgColor = paletteManager ? paletteManager.getForegroundColor() : '#000000';
+            const bgColor = paletteManager ? paletteManager.getBackgroundColor() : '#ffffff';
+
+            const padLeft = 4;
+            const padTop = 4;
+
+            lines.forEach((line, idx) => {
+                const lineY = textOverlayCoords.y + padTop + (idx * lineHeight);
+                let lineX = textOverlayCoords.x + padLeft;
+
+                if (textAlign === 'center') {
+                    lineX = textOverlayCoords.x + (boxWidth / 2);
+                } else if (textAlign === 'right') {
+                    lineX = textOverlayCoords.x + boxWidth - padLeft;
+                }
+
+                if (fillEnabled) {
+                    ctx.fillStyle = bgColor;
+                    const metrics = ctx.measureText(line);
+                    let bgX = lineX;
+                    if (textAlign === 'center') bgX = lineX - (metrics.width / 2);
+                    else if (textAlign === 'right') bgX = lineX - metrics.width;
+                    ctx.fillRect(bgX, lineY, metrics.width || 10, lineHeight);
+                }
+
+                ctx.fillStyle = fgColor;
+                ctx.fillText(line, lineX, lineY);
+
+                if (strokeEnabled && lineWidth > 0) {
+                    ctx.strokeStyle = bgColor;
+                    ctx.lineWidth = 1;
+                    ctx.strokeText(line, lineX, lineY);
+                }
+
+                if (isStrikethrough && line.length > 0) {
+                    const metrics = ctx.measureText(line);
+                    const textWidth = metrics.width;
+                    let startXLine = lineX;
+                    if (textAlign === 'center') startXLine = lineX - textWidth / 2;
+                    else if (textAlign === 'right') startXLine = lineX - textWidth;
+
+                    const strikeY = lineY + (fontSize * 0.55);
+                    ctx.beginPath();
+                    ctx.moveTo(startXLine, strikeY);
+                    ctx.lineTo(startXLine + textWidth, strikeY);
+                    ctx.strokeStyle = fgColor;
+                    ctx.lineWidth = Math.max(1, fontSize / 14);
+                    ctx.stroke();
+                }
+            });
+
+            ctx.restore();
+            canvasManager.takeSnapshot();
+            canvasManager.saveHistory();
+        }
+
+        if (activeTextOverlay.parentNode) {
+            activeTextOverlay.parentNode.removeChild(activeTextOverlay);
+        }
+        activeTextOverlay = null;
     }
 
     // Selection helper methods
@@ -421,24 +590,46 @@ window.Paint.Tools = (function () {
             ctx.fill();
         } else if (currentTool === 'text') {
             isDrawing = false;
-            if (window.Paint && window.Paint.Modal) {
-                window.Paint.Modal.prompt('Ingrese el texto a dibujar:', textContent, 'Texto').then(input => {
-                    if (input !== null && input !== undefined && input !== '') {
-                        textContent = input;
-                        drawText(ctx, startX, startY, textContent);
-                        canvasManager.takeSnapshot();
-                        canvasManager.saveHistory();
-                    }
-                });
-            } else {
-                const input = prompt('Ingrese el texto a dibujar:', textContent);
-                if (input !== null && input !== '') {
-                    textContent = input;
-                    drawText(ctx, startX, startY, textContent);
-                    canvasManager.takeSnapshot();
-                    canvasManager.saveHistory();
-                }
+            const wrapper = document.getElementById('canvas-wrapper');
+            if (!wrapper) return;
+
+            if (activeTextOverlay && e.target === activeTextOverlay) {
+                return;
             }
+
+            if (activeTextOverlay) {
+                commitActiveTextOverlay(canvasManager, paletteManager);
+            }
+
+            const textarea = document.createElement('textarea');
+            textarea.className = 'canvas-text-input';
+            textarea.style.left = `${startX}px`;
+            textarea.style.top = `${startY}px`;
+            textarea.style.width = '180px';
+            textarea.style.height = `${Math.max(50, fontSize * 2.5)}px`;
+            textarea.placeholder = 'Escriba aquí...';
+
+            activeTextOverlay = textarea;
+            textOverlayCoords = { x: startX, y: startY };
+
+            updateTextOverlayStyles(paletteManager);
+
+            wrapper.appendChild(textarea);
+            autoFitTextarea(textarea);
+
+            textarea.addEventListener('input', () => {
+                autoFitTextarea(textarea);
+            });
+
+            setTimeout(() => {
+                textarea.focus();
+            }, 50);
+
+            textarea.addEventListener('keydown', (evt) => {
+                if (evt.key === 'Escape') {
+                    commitActiveTextOverlay(canvasManager, paletteManager);
+                }
+            });
         } else if (currentTool === 'fill') {
             const rgba = paletteManager ? paletteManager.getActiveRgbaArray() : [0, 0, 0, 255];
             floodFill(canvasManager.getCanvas(), ctx, startX, startY, rgba);
@@ -668,6 +859,15 @@ window.Paint.Tools = (function () {
         isFillEnabled: () => fillEnabled,
         setPolygonSides,
         setTextOptions,
+        setFontFamily,
+        setFontSize,
+        setTextBold,
+        setTextItalic,
+        setTextStrikethrough,
+        setTextAlign,
+        updateTextOverlayStyles,
+        commitActiveTextOverlay,
+        hasActiveTextOverlay: () => !!activeTextOverlay,
         commitActiveSelection,
         deleteActiveSelection,
         hasSelection: () => hasSelection,
