@@ -527,14 +527,18 @@ window.Paint.UI = (function () {
             }
         });
 
-        // Mobile Touch Gestures (Single finger = Draw, 2 fingers = Pinch Zoom & Pan)
+        // Mobile Touch Gestures (1 finger on canvas = Draw, 1 finger on background = Pan, 2 fingers = Pinch Zoom & Pan)
         let touchStartDistance = 0;
         let touchStartZoom = 1.0;
         let touchStartScrollLeft = 0;
         let touchStartScrollTop = 0;
         let touchStartMidX = 0;
         let touchStartMidY = 0;
+        let touchStartSingleX = 0;
+        let touchStartSingleY = 0;
         let isTouchGesturing = false;
+        let isSingleFingerPanning = false;
+        let isSingleFingerDrawing = false;
 
         function getTouchDistance(touches) {
             const dx = touches[0].clientX - touches[1].clientX;
@@ -562,9 +566,17 @@ window.Paint.UI = (function () {
         }
 
         canvasContainer.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 2) {
+            if (e.touches.length >= 2) {
                 e.preventDefault();
+                // If drawing with 1 finger, finish stroke cleanly before switching to 2-finger gesture
+                if (isSingleFingerDrawing) {
+                    const upEvent = createMouseEventFromTouch(e, 'mouseup');
+                    Tools.onMouseUp(upEvent, Canvas, Palette);
+                    isSingleFingerDrawing = false;
+                }
+                isSingleFingerPanning = false;
                 isTouchGesturing = true;
+
                 touchStartDistance = getTouchDistance(e.touches);
                 touchStartZoom = Canvas.getZoom();
                 const mid = getTouchMidpoint(e.touches);
@@ -572,36 +584,57 @@ window.Paint.UI = (function () {
                 touchStartMidY = mid.y;
                 touchStartScrollLeft = canvasContainer.scrollLeft;
                 touchStartScrollTop = canvasContainer.scrollTop;
-            } else if (e.touches.length === 1 && !isTouchGesturing && e.target === canvas) {
-                e.preventDefault();
-                const fakeEvent = createMouseEventFromTouch(e, 'mousedown');
-                Tools.onMouseDown(fakeEvent, Canvas, Palette);
+            } else if (e.touches.length === 1 && !isTouchGesturing) {
+                if (e.target === canvas) {
+                    e.preventDefault();
+                    isSingleFingerDrawing = true;
+                    isSingleFingerPanning = false;
+                    const fakeEvent = createMouseEventFromTouch(e, 'mousedown');
+                    Tools.onMouseDown(fakeEvent, Canvas, Palette);
+                } else if (!e.target.classList.contains('resize-handle') && !e.target.classList.contains('cardinal-expand-btn')) {
+                    // 1 finger on viewport background = Pan Scroll
+                    isSingleFingerPanning = true;
+                    isSingleFingerDrawing = false;
+                    touchStartSingleX = e.touches[0].clientX;
+                    touchStartSingleY = e.touches[0].clientY;
+                    touchStartScrollLeft = canvasContainer.scrollLeft;
+                    touchStartScrollTop = canvasContainer.scrollTop;
+                }
             }
         }, { passive: false });
 
         canvasContainer.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 2 && isTouchGesturing) {
+            if (e.touches.length >= 2 && isTouchGesturing) {
                 e.preventDefault();
                 
-                // Pinch Zoom
+                // 1. Pinch Zoom
                 const currentDist = getTouchDistance(e.touches);
-                if (touchStartDistance > 0) {
+                if (touchStartDistance > 0 && currentDist > 0) {
                     const scaleFactor = currentDist / touchStartDistance;
-                    Canvas.setZoom(touchStartZoom * scaleFactor);
+                    const newZoom = touchStartZoom * scaleFactor;
+                    Canvas.setZoom(newZoom);
                 }
 
-                // 2-Finger Pan Scroll
+                // 2. 2-Finger Pan Scroll
                 const currentMid = getTouchMidpoint(e.touches);
                 const deltaX = currentMid.x - touchStartMidX;
                 const deltaY = currentMid.y - touchStartMidY;
                 canvasContainer.scrollLeft = touchStartScrollLeft - deltaX;
                 canvasContainer.scrollTop = touchStartScrollTop - deltaY;
-            } else if (e.touches.length === 1 && !isTouchGesturing && e.target === canvas) {
-                e.preventDefault();
-                const fakeEvent = createMouseEventFromTouch(e, 'mousemove');
-                Tools.onMouseMove(fakeEvent, Canvas, Palette);
-                const coords = Canvas.getCoordinates(fakeEvent);
-                updateStatusCoordinates(coords.x, coords.y);
+            } else if (e.touches.length === 1 && !isTouchGesturing) {
+                if (isSingleFingerDrawing && e.target === canvas) {
+                    e.preventDefault();
+                    const fakeEvent = createMouseEventFromTouch(e, 'mousemove');
+                    Tools.onMouseMove(fakeEvent, Canvas, Palette);
+                    const coords = Canvas.getCoordinates(fakeEvent);
+                    updateStatusCoordinates(coords.x, coords.y);
+                } else if (isSingleFingerPanning) {
+                    e.preventDefault();
+                    const deltaX = e.touches[0].clientX - touchStartSingleX;
+                    const deltaY = e.touches[0].clientY - touchStartSingleY;
+                    canvasContainer.scrollLeft = touchStartScrollLeft - deltaX;
+                    canvasContainer.scrollTop = touchStartScrollTop - deltaY;
+                }
             }
         }, { passive: false });
 
@@ -610,10 +643,22 @@ window.Paint.UI = (function () {
                 if (e.touches.length < 2) {
                     isTouchGesturing = false;
                 }
-            } else if (e.target === canvas) {
+            } else if (isSingleFingerDrawing) {
+                isSingleFingerDrawing = false;
                 const fakeEvent = createMouseEventFromTouch(e, 'mouseup');
                 Tools.onMouseUp(fakeEvent, Canvas, Palette);
+            } else if (isSingleFingerPanning) {
+                isSingleFingerPanning = false;
             }
+        });
+
+        canvasContainer.addEventListener('touchcancel', () => {
+            if (isSingleFingerDrawing) {
+                isSingleFingerDrawing = false;
+                Tools.onMouseLeave(Canvas, Palette);
+            }
+            isTouchGesturing = false;
+            isSingleFingerPanning = false;
         });
 
         // Global mouseup event to clean drawing state if mouse released outside canvas
