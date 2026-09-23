@@ -5,7 +5,7 @@ Paint Canvas Retro es una aplicación web de dibujo basada en HTML5 Canvas con u
 ## Inspiración Retro
 
 El diseño visual evoca la estética retro de Microsoft Paint de finales de los 90 y principios de los 2000, incluyendo:
-- Ventana clásica con marco biselado, barra de título azul degradado y botones de control (`_`, `□`, `✕`).
+- Ventana clásica con marco biselado, barra de título azul degradado y botones de control (`_`, `✕`).
 - Barras de herramientas, selectores de grosor de línea y paleta de 28 colores característicos.
 - Explorador de archivos interno al estilo del Explorador de Windows XP para gestionar proyectos guardados en `localStorage`.
 
