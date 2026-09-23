@@ -4,6 +4,9 @@
  */
 document.addEventListener('DOMContentLoaded', async () => {
     if (window.Paint) {
+        if (window.Paint.I18n) {
+            window.Paint.I18n.init();
+        }
         window.Paint.Canvas.init('paintCanvas');
         window.Paint.Palette.init();
         window.Paint.UI.init();

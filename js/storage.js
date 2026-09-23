@@ -74,10 +74,9 @@ window.Paint.Storage = (function () {
             // Handle quota exceeded gracefully
             if (e.name === 'QuotaExceededError' || e.code === 22) {
                 if (window.Paint && window.Paint.Modal) {
-                    window.Paint.Modal.alert(
-                        'El almacenamiento de LocalStorage está lleno. Elimine algunos proyectos antiguos para guardar este dibujo.',
-                        'Error de Almacenamiento'
-                    );
+                    const msg = (window.Paint.I18n && window.Paint.I18n.t) ? window.Paint.I18n.t('modal.storage_full_msg') : 'El almacenamiento de LocalStorage está lleno. Elimine algunos proyectos antiguos para guardar este dibujo.';
+                    const title = (window.Paint.I18n && window.Paint.I18n.t) ? window.Paint.I18n.t('modal.storage_error_title') : 'Error de Almacenamiento';
+                    window.Paint.Modal.alert(msg, title);
                 }
             }
             return null;

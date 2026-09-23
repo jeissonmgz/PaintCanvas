@@ -18,60 +18,71 @@
                     <path d="M12 20h9"/>
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                 </svg>
-                <input type="text" id="project-title-input" class="retro-title-input" value="Sin título.png" title="Haz clic para cambiar el nombre del lienzo" spellcheck="false"/>
-                <span class="app-title-suffix">- Paint Canvas Retro</span>
+                <input type="text" id="project-title-input" class="retro-title-input" value="Sin título.png" data-i18n-title="title.title_input" title="Haz clic para cambiar el nombre del lienzo" spellcheck="false"/>
+                <span class="app-title-suffix" data-i18n="app.title_suffix">- Paint Canvas Retro</span>
             </div>
             <div class="title-bar-controls">
-                <button class="win-btn" id="win-btn-minimize" title="Minimizar (Abrir Explorador de Archivos)">_</button>
-                <button class="win-btn" id="win-btn-maximize" title="Maximizar">□</button>
-                <button class="win-btn close-btn" id="win-btn-close" title="Cerrar (Abrir Explorador de Archivos)">✕</button>
+                <button class="win-btn" id="win-btn-minimize" data-i18n-title="title.minimize" title="Minimizar (Abrir Explorador de Archivos)">_</button>
+                <button class="win-btn" id="win-btn-maximize" data-i18n-title="title.maximize" title="Maximizar">□</button>
+                <button class="win-btn close-btn" id="win-btn-close" data-i18n-title="title.close" title="Cerrar (Abrir Explorador de Archivos)">✕</button>
             </div>
         </div>
 
         <!-- Top Menu Bar -->
         <div class="menu-bar">
             <div class="menu-item">
-                <button class="menu-btn">Archivo</button>
+                <button class="menu-btn" data-i18n="menu.file">Archivo</button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" id="action-new">Nuevo <span>Ctrl+N</span></a>
-                    <a class="dropdown-item" id="action-open-explorer">Abrir Explorador... <span>Ctrl+O</span></a>
+                    <a class="dropdown-item" id="action-new"><span data-i18n="menu.file_new">Nuevo</span> <span>Ctrl+N</span></a>
+                    <a class="dropdown-item" id="action-open-explorer"><span data-i18n="menu.file_open">Abrir Explorador...</span> <span>Ctrl+O</span></a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="action-save-storage">Guardar Proyecto <span>Ctrl+S</span></a>
-                    <a class="dropdown-item" id="action-export">Exportar Imagen (PNG)...</a>
+                    <a class="dropdown-item" id="action-save-storage"><span data-i18n="menu.file_save">Guardar Proyecto</span> <span>Ctrl+S</span></a>
+                    <a class="dropdown-item" id="action-export" data-i18n="menu.file_export">Exportar Imagen (PNG)...</a>
                 </div>
             </div>
             <div class="menu-item">
-                <button class="menu-btn">Edición</button>
+                <button class="menu-btn" data-i18n="menu.edit">Edición</button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" id="action-undo">Deshacer <span>Ctrl+Z</span></a>
-                    <a class="dropdown-item" id="action-redo">Rehacer <span>Ctrl+Y</span></a>
+                    <a class="dropdown-item" id="action-undo"><span data-i18n="menu.edit_undo">Deshacer</span> <span>Ctrl+Z</span></a>
+                    <a class="dropdown-item" id="action-redo"><span data-i18n="menu.edit_redo">Rehacer</span> <span>Ctrl+Y</span></a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="action-paste">Pegar Imagen <span>Ctrl+V</span></a>
+                    <a class="dropdown-item" id="action-paste"><span data-i18n="menu.edit_paste">Pegar Imagen</span> <span>Ctrl+V</span></a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="action-clear">Borrar Lienzo</a>
+                    <a class="dropdown-item" id="action-clear" data-i18n="menu.edit_clear">Borrar Lienzo</a>
                 </div>
             </div>
             <div class="menu-item">
-                <button class="menu-btn">Ver</button>
+                <button class="menu-btn" data-i18n="menu.view">Ver</button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" id="action-zoom-in">Acercar (Zoom +)</a>
-                    <a class="dropdown-item" id="action-zoom-out">Alejar (Zoom -)</a>
-                    <a class="dropdown-item" id="action-zoom-reset">Restablecer 100%</a>
+                    <a class="dropdown-item" id="action-zoom-in" data-i18n="menu.view_zoomin">Acercar (Zoom +)</a>
+                    <a class="dropdown-item" id="action-zoom-out" data-i18n="menu.view_zoomout">Alejar (Zoom -)</a>
+                    <a class="dropdown-item" id="action-zoom-reset" data-i18n="menu.view_reset">Restablecer 100%</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="action-grid">Ver Cuadrícula</a>
-                    <a class="dropdown-item checked" id="action-guides">Ver Guías</a>
+                    <a class="dropdown-item" id="action-grid" data-i18n="menu.view_grid">Ver Cuadrícula</a>
+                    <a class="dropdown-item checked" id="action-guides" data-i18n="menu.view_guides">Ver Guías</a>
                 </div>
             </div>
             <div class="menu-item">
-                <button class="menu-btn">Imagen</button>
+                <button class="menu-btn" data-i18n="menu.image">Imagen</button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" id="action-resize">Tamaño del Lienzo...</a>
+                    <a class="dropdown-item" id="action-resize" data-i18n="menu.image_resize">Tamaño del Lienzo...</a>
                 </div>
             </div>
             <div class="menu-item">
-                <button class="menu-btn">Ayuda</button>
+                <button class="menu-btn" data-i18n="menu.help">Ayuda</button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" id="action-about">Acerca de Paint Canvas</a>
+                    <a class="dropdown-item" id="action-about" data-i18n="menu.help_about">Acerca de Paint Canvas</a>
+                </div>
+            </div>
+            <div class="menu-item">
+                <button class="menu-btn" data-i18n="menu.language">Idioma / Language</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" id="action-lang-es"><span data-i18n="menu.lang_es">Español (ES)</span></a>
+                    <a class="dropdown-item" id="action-lang-en"><span data-i18n="menu.lang_en">English (EN)</span></a>
+                    <a class="dropdown-item" id="action-lang-de"><span data-i18n="menu.lang_de">Deutsch (DE)</span></a>
+                    <a class="dropdown-item" id="action-lang-fr"><span data-i18n="menu.lang_fr">Français (FR)</span></a>
+                    <a class="dropdown-item" id="action-lang-it"><span data-i18n="menu.lang_it">Italiano (IT)</span></a>
+                    <a class="dropdown-item" id="action-lang-pt"><span data-i18n="menu.lang_pt">Português (PT)</span></a>
                 </div>
             </div>
         </div>
@@ -84,61 +95,61 @@
                 
                 <!-- Tools Box -->
                 <div class="panel-box">
-                    <div class="panel-header">HERRAMIENTAS</div>
+                    <div class="panel-header" data-i18n="panel.tools">HERRAMIENTAS</div>
                     <div class="tools-grid">
-                        <button class="tool-btn" data-tool="select-rect" title="Selección Rectangular (Recortar y Mover)">
+                        <button class="tool-btn" data-tool="select-rect" data-i18n-title="tool.select_rect_title" title="Selección Rectangular (Recortar y Mover)">
                             <svg class="tool-icon" stroke-dasharray="3 2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16"/></svg>
-                            <span class="tool-label">Sel. Rect</span>
+                            <span class="tool-label" data-i18n="tool.select_rect">Sel. Rect</span>
                         </button>
-                        <button class="tool-btn" data-tool="select-free" title="Selección Libre / Lasso (Recortar y Mover)">
+                        <button class="tool-btn" data-tool="select-free" data-i18n-title="tool.select_free_title" title="Selección Libre / Lasso (Recortar y Mover)">
                             <svg class="tool-icon" stroke-dasharray="3 2" viewBox="0 0 24 24"><polygon points="12,2 22,9 18,21 6,21 2,9"/></svg>
-                            <span class="tool-label">Sel. Libre</span>
+                            <span class="tool-label" data-i18n="tool.select_free">Sel. Libre</span>
                         </button>
-                        <button class="tool-btn active" data-tool="line" title="Línea Recta">
+                        <button class="tool-btn active" data-tool="line" data-i18n-title="tool.line_title" title="Línea Recta">
                             <svg class="tool-icon" viewBox="0 0 24 24"><line x1="4" y1="20" x2="20" y2="4"/></svg>
-                            <span class="tool-label">Línea</span>
+                            <span class="tool-label" data-i18n="tool.line">Línea</span>
                         </button>
-                        <button class="tool-btn" data-tool="rect" title="Rectángulo / Cuadrado">
+                        <button class="tool-btn" data-tool="rect" data-i18n-title="tool.rect_title" title="Rectángulo / Cuadrado">
                             <svg class="tool-icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16"/></svg>
-                            <span class="tool-label">Cuadro</span>
+                            <span class="tool-label" data-i18n="tool.rect">Cuadro</span>
                         </button>
-                        <button class="tool-btn" data-tool="circle" title="Círculo">
+                        <button class="tool-btn" data-tool="circle" data-i18n-title="tool.circle_title" title="Círculo">
                             <svg class="tool-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
-                            <span class="tool-label">Círculo</span>
+                            <span class="tool-label" data-i18n="tool.circle">Círculo</span>
                         </button>
-                        <button class="tool-btn" data-tool="ellipse" title="Óvalo / Elipse">
+                        <button class="tool-btn" data-tool="ellipse" data-i18n-title="tool.ellipse_title" title="Óvalo / Elipse">
                             <svg class="tool-icon" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="6"/></svg>
-                            <span class="tool-label">Óvalo</span>
+                            <span class="tool-label" data-i18n="tool.ellipse">Óvalo</span>
                         </button>
-                        <button class="tool-btn" data-tool="polygon" title="Polígono Regular">
+                        <button class="tool-btn" data-tool="polygon" data-i18n-title="tool.polygon_title" title="Polígono Regular">
                             <svg class="tool-icon" viewBox="0 0 24 24"><polygon points="12,2 22,9 18,21 6,21 2,9"/></svg>
-                            <span class="tool-label">Polígono</span>
+                            <span class="tool-label" data-i18n="tool.polygon">Polígono</span>
                         </button>
-                        <button class="tool-btn" data-tool="pencil" title="Lápiz / Mano alzada">
+                        <button class="tool-btn" data-tool="pencil" data-i18n-title="tool.pencil_title" title="Lápiz / Mano alzada">
                             <svg class="tool-icon" viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                            <span class="tool-label">Lápiz</span>
+                            <span class="tool-label" data-i18n="tool.pencil">Lápiz</span>
                         </button>
-                        <button class="tool-btn" data-tool="eraser" title="Borrador">
+                        <button class="tool-btn" data-tool="eraser" data-i18n-title="tool.eraser_title" title="Borrador">
                             <svg class="tool-icon" viewBox="0 0 24 24"><path d="M18 13l-6 6-7-7 6-6 7 7z"/><line x1="18" y1="21" x2="6" y2="21"/></svg>
-                            <span class="tool-label">Borrador</span>
+                            <span class="tool-label" data-i18n="tool.eraser">Borrador</span>
                         </button>
-                        <button class="tool-btn" data-tool="text" title="Texto">
+                        <button class="tool-btn" data-tool="text" data-i18n-title="tool.text_title" title="Texto">
                             <svg class="tool-icon" viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="9" y1="20" x2="15" y2="20"/></svg>
-                            <span class="tool-label">Texto</span>
+                            <span class="tool-label" data-i18n="tool.text">Texto</span>
                         </button>
-                        <button class="tool-btn" data-tool="fill" title="Relleno de color">
+                        <button class="tool-btn" data-tool="fill" data-i18n-title="tool.fill_title" title="Relleno de color">
                             <svg class="tool-icon" viewBox="0 0 24 24"><path d="M19 11l-8-8-8 8 8 8 8-8z"/><path d="M22 22s-2-2-2-4 2-4 2-4"/></svg>
-                            <span class="tool-label">Relleno</span>
+                            <span class="tool-label" data-i18n="tool.fill">Relleno</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Tool Options Box -->
                 <div class="panel-box tool-options-box">
-                    <div class="panel-header">OPCIONES</div>
+                    <div class="panel-header" data-i18n="panel.options">OPCIONES</div>
 
                     <div class="option-row-group">
-                        <label>Grosor:</label>
+                        <label data-i18n="opt.thickness">Grosor:</label>
                         <div class="line-width-presets" id="line-width-presets">
                             <button type="button" class="width-preset-btn active" data-width="1" title="Fino (1px)">
                                 <span class="preset-line" style="height: 1px;"></span>
@@ -162,43 +173,43 @@
                     </div>
 
                     <div class="option-row" id="opt-custom-width" style="display: none; margin-top: 2px;">
-                        <label for="line-width">Grosor exacto:</label>
+                        <label for="line-width" data-i18n="opt.exact_width">Grosor exacto:</label>
                         <input type="number" id="line-width" class="retro-input" min="1" max="100" value="1"/>
                     </div>
 
                     <div class="option-row-group" style="margin-top: 4px;">
-                        <label>Puntas de línea:</label>
+                        <label data-i18n="opt.line_caps">Puntas de línea:</label>
                         <div class="cap-preset-btns" id="line-cap-presets">
                             <button type="button" class="cap-preset-btn active" data-cap="butt" title="Plano (corte recto)">
                                 <svg viewBox="0 0 24 24" width="16" height="14" stroke="#000" stroke-width="4" stroke-linecap="butt" fill="none">
                                     <line x1="4" y1="12" x2="20" y2="12" />
                                 </svg>
-                                <span class="cap-label">Plano</span>
+                                <span class="cap-label" data-i18n="opt.cap_flat">Plano</span>
                             </button>
                             <button type="button" class="cap-preset-btn" data-cap="round" title="Redondo (punta suave)">
                                 <svg viewBox="0 0 24 24" width="16" height="14" stroke="#000" stroke-width="4" stroke-linecap="round" fill="none">
                                     <line x1="5" y1="12" x2="19" y2="12" />
                                 </svg>
-                                <span class="cap-label">Redondo</span>
+                                <span class="cap-label" data-i18n="opt.cap_round">Redondo</span>
                             </button>
                             <button type="button" class="cap-preset-btn" data-cap="square" title="Cuadrado (punta ancha)">
                                 <svg viewBox="0 0 24 24" width="16" height="14" stroke="#000" stroke-width="4" stroke-linecap="square" fill="none">
                                     <line x1="6" y1="12" x2="18" y2="12" />
                                 </svg>
-                                <span class="cap-label">Cuadrado</span>
+                                <span class="cap-label" data-i18n="opt.cap_square">Cuadrado</span>
                             </button>
                         </div>
                     </div>
 
                     <div class="option-row" id="opt-polygon-sides" style="display: none;">
-                        <label for="polygon-sides">Lados:</label>
+                        <label for="polygon-sides" data-i18n="opt.polygon_sides">Lados:</label>
                         <input type="number" id="polygon-sides" class="retro-input" min="3" max="12" value="3"/>
                     </div>
 
                     <!-- Text Formatting Options Subpanel -->
                     <div id="opt-text-options" style="display: none; border-top: 1px dotted #808080; padding-top: 6px; margin-top: 6px;">
                         <div class="option-row">
-                            <label for="text-font-family">Fuente:</label>
+                            <label for="text-font-family" data-i18n="opt.text_font">Fuente:</label>
                             <select id="text-font-family" class="retro-select" style="max-width: 95px;">
                                 <option value="Arial">Arial</option>
                                 <option value="Tahoma" selected>Tahoma</option>
@@ -213,31 +224,31 @@
                         </div>
 
                         <div class="option-row">
-                            <label for="text-font-size">Tamaño:</label>
+                            <label for="text-font-size" data-i18n="opt.text_size">Tamaño:</label>
                             <input type="number" id="text-font-size" class="retro-input" min="8" max="144" value="20"/>
                         </div>
 
                         <div class="option-row text-style-btns">
-                            <button type="button" class="btn-retro text-toggle-btn" id="text-bold" title="Negrita (Bold)"><b>N</b></button>
-                            <button type="button" class="btn-retro text-toggle-btn" id="text-italic" title="Cursiva (Italic)"><i>K</i></button>
-                            <button type="button" class="btn-retro text-toggle-btn" id="text-strikethrough" title="Tachado (Strikethrough)"><s>S</s></button>
+                            <button type="button" class="btn-retro text-toggle-btn" id="text-bold" data-i18n-title="opt.text_bold_title" title="Negrita (Bold)"><b>N</b></button>
+                            <button type="button" class="btn-retro text-toggle-btn" id="text-italic" data-i18n-title="opt.text_italic_title" title="Cursiva (Italic)"><i>K</i></button>
+                            <button type="button" class="btn-retro text-toggle-btn" id="text-strikethrough" data-i18n-title="opt.text_strike_title" title="Tachado (Strikethrough)"><s>S</s></button>
                         </div>
 
                         <div class="option-row">
-                            <label for="text-align">Alinear:</label>
+                            <label for="text-align" data-i18n="opt.text_align">Alinear:</label>
                             <select id="text-align" class="retro-select" style="max-width: 95px;">
-                                <option value="left" selected>Izquierda</option>
-                                <option value="center">Centro</option>
-                                <option value="right">Derecha</option>
+                                <option value="left" selected data-i18n="opt.align_left">Izquierda</option>
+                                <option value="center" data-i18n="opt.align_center">Centro</option>
+                                <option value="right" data-i18n="opt.align_right">Derecha</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="option-row" style="margin-top: 4px;">
-                        <label><input type="checkbox" id="enable-stroke" checked/> Contorno</label>
+                        <label><input type="checkbox" id="enable-stroke" checked/> <span data-i18n="opt.enable_stroke">Contorno</span></label>
                     </div>
                     <div class="option-row">
-                        <label><input type="checkbox" id="enable-fill"/> Relleno</label>
+                        <label><input type="checkbox" id="enable-fill"/> <span data-i18n="opt.enable_fill">Relleno</span></label>
                     </div>
                 </div>
 
@@ -259,16 +270,16 @@
                     <div class="resize-handle handle-se" data-handle="se" title="Ajustar tamaño"></div>
 
                     <!-- Cardinal Canvas Quick Expansion Buttons -->
-                    <button type="button" class="cardinal-expand-btn cardinal-n" data-expand="n" title="Ampliar 100px hacia arriba">
+                    <button type="button" class="cardinal-expand-btn cardinal-n" data-expand="n" data-i18n="cardinal.n" data-i18n-title="cardinal.n_title" title="Ampliar 100px hacia arriba">
                         ▲ +100px
                     </button>
-                    <button type="button" class="cardinal-expand-btn cardinal-s" data-expand="s" title="Ampliar 100px hacia abajo">
+                    <button type="button" class="cardinal-expand-btn cardinal-s" data-expand="s" data-i18n="cardinal.s" data-i18n-title="cardinal.s_title" title="Ampliar 100px hacia abajo">
                         ▼ +100px
                     </button>
-                    <button type="button" class="cardinal-expand-btn cardinal-e" data-expand="e" title="Ampliar 100px a la derecha">
+                    <button type="button" class="cardinal-expand-btn cardinal-e" data-expand="e" data-i18n="cardinal.e" data-i18n-title="cardinal.e_title" title="Ampliar 100px a la derecha">
                         ▶ +100px
                     </button>
-                    <button type="button" class="cardinal-expand-btn cardinal-w" data-expand="w" title="Ampliar 100px a la izquierda">
+                    <button type="button" class="cardinal-expand-btn cardinal-w" data-expand="w" data-i18n="cardinal.w" data-i18n-title="cardinal.w_title" title="Ampliar 100px a la izquierda">
                         ◀ +100px
                     </button>
                 </div>
@@ -283,20 +294,20 @@
             <div class="color-bar">
                 <!-- Dual Color Rows Selector Box -->
                 <div class="color-rows-container">
-                    <div class="color-row-item active" id="row-fg" title="Color 1: Clic para editar | Clic izq en paleta">
+                    <div class="color-row-item active" id="row-fg" data-i18n-title="color.row_fg_title" title="Color 1: Clic para editar | Clic izq en paleta">
                         <span class="row-indicator">1°</span>
                         <div class="color-box" id="fg-color-box" style="background-color: #000000;"></div>
                         <div class="row-info">
-                            <span class="row-title">Contorno / Texto</span>
+                            <span class="row-title" data-i18n="color.row_fg">Contorno / Texto</span>
                             <input type="color" id="fg-custom-color" class="color-picker-mini" value="#000000" title="Elegir Color 1"/>
                         </div>
                     </div>
 
-                    <div class="color-row-item" id="row-bg" title="Color 2: Clic para editar | Clic der en paleta">
+                    <div class="color-row-item" id="row-bg" data-i18n-title="color.row_bg_title" title="Color 2: Clic para editar | Clic der en paleta">
                         <span class="row-indicator">2°</span>
                         <div class="color-box" id="bg-color-box" style="background-color: #ffffff;"></div>
                         <div class="row-info">
-                            <span class="row-title">Relleno / Fondo</span>
+                            <span class="row-title" data-i18n="color.row_bg">Relleno / Fondo</span>
                             <input type="color" id="bg-custom-color" class="color-picker-mini" value="#ffffff" title="Elegir Color 2"/>
                         </div>
                     </div>
@@ -307,10 +318,10 @@
                     <!-- Dynamic Swatches populated by JS -->
                 </div>
 
-                <!-- Transparency Control Box -->
-                <div class="transparency-control-group" title="Nivel de transparencia del color (0% a 100%)">
+                <!-- Transparency Control Group -->
+                <div class="transparency-control-group" data-i18n-title="color.opacity_title" title="Nivel de transparencia del color (0% a 100%)">
                     <div class="transparency-label-row">
-                        <label for="opacity-slider" class="transparency-title">Opacidad</label>
+                        <label for="opacity-slider" class="transparency-title" data-i18n="color.opacity_label">Opacidad</label>
                         <span id="opacity-value" class="transparency-val">(100%)</span>
                     </div>
                     <div class="transparency-slider-row">
@@ -321,10 +332,10 @@
 
             <!-- Status Bar -->
             <div class="status-bar">
-                <div class="status-panel main-status" id="status-msg">Para dibujar, seleccione una herramienta y arrastre sobre el lienzo.</div>
+                <div class="status-panel main-status" id="status-msg" data-i18n="status.default">Para dibujar, seleccione una herramienta y arrastre sobre el lienzo.</div>
                 <div class="status-panel coords-status" id="status-coords"></div>
-                <div class="status-panel dim-status" id="status-dimensions" title="Haz clic para cambiar el tamaño del lienzo">900 x 600px</div>
-                <div class="status-panel zoom-status" id="status-zoom" title="Haz clic para restablecer zoom a 100%">100%</div>
+                <div class="status-panel dim-status" id="status-dimensions" data-i18n-title="status.dim_title" title="Haz clic para cambiar el tamaño del lienzo">900 x 600px</div>
+                <div class="status-panel zoom-status" id="status-zoom" data-i18n-title="status.zoom_title" title="Haz clic para restablecer zoom a 100%">100%</div>
             </div>
 
         </div>
@@ -335,21 +346,21 @@
     <div class="modal-overlay" id="resize-modal">
         <div class="modal-win">
             <div class="title-bar">
-                <span>Tamaño del Lienzo</span>
+                <span data-i18n="resize.modal_title">Tamaño del Lienzo</span>
                 <button class="win-btn close-modal">✕</button>
             </div>
             <div class="modal-body">
                 <div class="option-row">
-                    <label for="canvas-w-input">Ancho (px):</label>
+                    <label for="canvas-w-input" data-i18n="resize.width">Ancho (px):</label>
                     <input type="number" id="canvas-w-input" class="retro-input" value="900" min="50" max="3000"/>
                 </div>
                 <div class="option-row">
-                    <label for="canvas-h-input">Alto (px):</label>
+                    <label for="canvas-h-input" data-i18n="resize.height">Alto (px):</label>
                     <input type="number" id="canvas-h-input" class="retro-input" value="600" min="50" max="3000"/>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-retro" id="apply-resize-btn">Aceptar</button>
-                    <button class="btn-retro close-modal">Cancelar</button>
+                    <button class="btn-retro" id="apply-resize-btn" data-i18n="btn.ok">Aceptar</button>
+                    <button class="btn-retro close-modal" data-i18n="btn.cancel">Cancelar</button>
                 </div>
             </div>
         </div>
@@ -364,27 +375,27 @@
                     <svg class="title-bar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
                     </svg>
-                    <span>Explorador de Archivos - Mis Diseños</span>
+                    <span data-i18n="explorer.title">Explorador de Archivos - Mis Diseños</span>
                 </div>
                 <div class="title-bar-controls">
-                    <button class="win-btn close-btn close-explorer-modal" title="Cerrar Explorador">✕</button>
+                    <button class="win-btn close-btn close-explorer-modal" data-i18n-title="explorer.close_title" title="Cerrar Explorador">✕</button>
                 </div>
             </div>
 
             <!-- Explorer Toolbar -->
             <div class="explorer-toolbar">
                 <button type="button" class="btn-retro explorer-tool-btn" id="exp-btn-new">
-                    <span>📄 Nuevo Canvas</span>
+                    <span data-i18n="explorer.btn_new">📄 Nuevo Canvas</span>
                 </button>
                 <button type="button" class="btn-retro explorer-tool-btn" id="exp-btn-save-current">
-                    <span>💾 Guardar Actual</span>
+                    <span data-i18n="explorer.btn_save">💾 Guardar Actual</span>
                 </button>
                 <button type="button" class="btn-retro explorer-tool-btn" id="exp-btn-delete" disabled>
-                    <span>🗑️ Eliminar</span>
+                    <span data-i18n="explorer.btn_delete">🗑️ Eliminar</span>
                 </button>
                 <div class="explorer-search-wrap">
-                    <label for="exp-search-input">Buscar:</label>
-                    <input type="text" id="exp-search-input" class="retro-input" placeholder="Filtrar por nombre..."/>
+                    <label for="exp-search-input" data-i18n="explorer.search_label">Buscar:</label>
+                    <input type="text" id="exp-search-input" class="retro-input" data-i18n-placeholder="explorer.search_placeholder" placeholder="Filtrar por nombre..."/>
                 </div>
             </div>
 
@@ -393,15 +404,15 @@
                 <!-- Left Sidebar (Windows XP Task / Folder Pane) -->
                 <div class="explorer-sidebar">
                     <div class="explorer-pane-box">
-                        <div class="explorer-pane-header">TAREAS DE ARCHIVO</div>
+                        <div class="explorer-pane-header" data-i18n="explorer.sidebar_tasks">TAREAS DE ARCHIVO</div>
                         <ul class="explorer-pane-links">
-                            <li id="exp-side-new">📄 Crear nuevo dibujo</li>
-                            <li id="exp-side-save">💾 Guardar este proyecto</li>
+                            <li id="exp-side-new" data-i18n="explorer.side_new">📄 Crear nuevo dibujo</li>
+                            <li id="exp-side-save" data-i18n="explorer.side_save">💾 Guardar este proyecto</li>
                         </ul>
                     </div>
                     <div class="explorer-pane-box">
-                        <div class="explorer-pane-header">DETALLES DEL ARCHIVO</div>
-                        <div class="explorer-details-pane" id="exp-details-content">
+                        <div class="explorer-pane-header" data-i18n="explorer.sidebar_details">DETALLES DEL ARCHIVO</div>
+                        <div class="explorer-details-pane" id="exp-details-content" data-i18n="explorer.details_empty">
                             Seleccione un canvas para ver la información.
                         </div>
                     </div>
@@ -419,8 +430,8 @@
             <div class="modal-footer explorer-footer">
                 <div class="explorer-status-text" id="exp-status-text">Cargando archivos...</div>
                 <div class="explorer-footer-btns">
-                    <button class="btn-retro primary-btn" id="exp-btn-open" disabled>Abrir Seleccionado</button>
-                    <button class="btn-retro close-explorer-modal">Cancelar</button>
+                    <button class="btn-retro primary-btn" id="exp-btn-open" disabled data-i18n="explorer.btn_open">Abrir Seleccionado</button>
+                    <button class="btn-retro close-explorer-modal" data-i18n="btn.cancel">Cancelar</button>
                 </div>
             </div>
         </div>
@@ -429,6 +440,7 @@
     <!-- Modular Vanilla JavaScript Files -->
     <script src="js/modal.js"></script>
     <script src="js/storage.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/canvas.js"></script>
     <script src="js/tools.js"></script>
     <script src="js/palette.js"></script>

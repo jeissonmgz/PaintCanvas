@@ -36,10 +36,12 @@ window.Paint.UI = (function () {
         const titleInput = document.getElementById('project-title-input');
         if (!titleInput) return;
 
+        const getSuffix = () => (window.Paint && window.Paint.I18n) ? window.Paint.I18n.t('app.title_suffix') : '- Paint Canvas Retro';
+
         const syncTitle = () => {
             let val = titleInput.value.trim();
             if (!val) val = 'Sin título.png';
-            document.title = `${val} - Paint Canvas Retro`;
+            document.title = `${val} ${getSuffix()}`;
             
             const Storage = window.Paint.Storage;
             if (Storage && Canvas && Canvas.getCanvas()) {
@@ -50,7 +52,7 @@ window.Paint.UI = (function () {
 
         titleInput.addEventListener('input', () => {
             const val = titleInput.value.trim() || 'Sin título.png';
-            document.title = `${val} - Paint Canvas Retro`;
+            document.title = `${val} ${getSuffix()}`;
         });
         titleInput.addEventListener('change', syncTitle);
         titleInput.addEventListener('blur', syncTitle);
@@ -77,6 +79,9 @@ window.Paint.UI = (function () {
             menuItems.forEach(item => item.classList.remove('open'));
         });
 
+        // Helper for translation key lookup
+        const t = key => (window.Paint && window.Paint.I18n) ? window.Paint.I18n.t(key) : key;
+
         // Menu item actions
         const actions = {
             'action-new': () => createNewCanvas(),
@@ -96,7 +101,7 @@ window.Paint.UI = (function () {
                                 const img = new Image();
                                 img.onload = () => {
                                     Tools.pasteImageFromClipboard(Canvas, img);
-                                    updateStatusText('Imagen pegada desde el portapapeles. Arrastre los tiradores para cambiar el tamaño.');
+                                    updateStatusText(t('status.pasted_img'));
                                 };
                                 img.src = URL.createObjectURL(blob);
                                 return;
@@ -104,13 +109,13 @@ window.Paint.UI = (function () {
                         }
                     }
                     window.Paint.Modal.info(
-                        'Para pegar una imagen, use el atajo de teclado Ctrl+V (Cmd+V en Mac) cuando tenga una imagen en el portapapeles.',
-                        'Pegar Imagen'
+                        t('modal.paste_help_msg'),
+                        t('modal.paste_help_title')
                     );
                 } catch (err) {
                     window.Paint.Modal.info(
-                        'Por favor utilice el atajo Ctrl+V (Cmd+V en Mac) para pegar imágenes del portapapeles.',
-                        'Pegar Imagen'
+                        t('modal.paste_help_msg'),
+                        t('modal.paste_help_title')
                     );
                 }
             },
@@ -133,9 +138,27 @@ window.Paint.UI = (function () {
             'action-resize': () => openResizeModal(),
             'action-about': () => {
                 window.Paint.Modal.alert(
-                    'Paint Canvas Retro (Vanilla JS)\nInspirado en el clásico Microsoft Paint (Windows XP/98).\n¡Disfruta creando tu arte!',
-                    'Acerca de Paint Canvas'
+                    t('modal.about_msg'),
+                    t('modal.about_title')
                 );
+            },
+            'action-lang-es': () => {
+                if (window.Paint && window.Paint.I18n) window.Paint.I18n.setLanguage('es');
+            },
+            'action-lang-en': () => {
+                if (window.Paint && window.Paint.I18n) window.Paint.I18n.setLanguage('en');
+            },
+            'action-lang-de': () => {
+                if (window.Paint && window.Paint.I18n) window.Paint.I18n.setLanguage('de');
+            },
+            'action-lang-fr': () => {
+                if (window.Paint && window.Paint.I18n) window.Paint.I18n.setLanguage('fr');
+            },
+            'action-lang-it': () => {
+                if (window.Paint && window.Paint.I18n) window.Paint.I18n.setLanguage('it');
+            },
+            'action-lang-pt': () => {
+                if (window.Paint && window.Paint.I18n) window.Paint.I18n.setLanguage('pt');
             }
         };
 
@@ -855,9 +878,10 @@ window.Paint.UI = (function () {
                     closeResizeModal();
                     saveCurrentToStorage(false);
                 } else {
+                    const t = window.Paint.I18n ? window.Paint.I18n.t : (k => k);
                     window.Paint.Modal.warning(
-                        'Por favor ingrese dimensiones válidas en píxeles.',
-                        'Tamaño del Lienzo'
+                        t('modal.valid_dims_msg'),
+                        t('modal.warning_title')
                     );
                 }
             };
@@ -914,6 +938,7 @@ window.Paint.UI = (function () {
         const titleInput = document.getElementById('project-title-input');
         const title = titleInput ? titleInput.value : 'Sin título.png';
         const canvas = Canvas.getCanvas();
+        const t = key => (window.Paint && window.Paint.I18n) ? window.Paint.I18n.t(key) : key;
 
         if (Canvas && Canvas.isLoadingState && Canvas.isLoadingState()) {
             return null; // Block auto-saving while canvas is initializing or loading a project
@@ -926,9 +951,10 @@ window.Paint.UI = (function () {
                 currentTabProjectId = saved.id;
             }
             if (saved && showNotification) {
-                updateStatusText(`Proyecto '${saved.title}' guardado correctamente en LocalStorage.`);
+                const msg = (window.Paint && window.Paint.I18n) ? window.Paint.I18n.t('status.project_saved', { title: saved.title }) : `Proyecto '${saved.title}' guardado correctamente en LocalStorage.`;
+                updateStatusText(msg);
                 setTimeout(() => {
-                    updateStatusText('Para dibujar, seleccione una herramienta y arrastre sobre el lienzo.');
+                    updateStatusText(t('status.default'));
                 }, 4000);
             }
             return saved;
@@ -942,6 +968,8 @@ window.Paint.UI = (function () {
 
         const activeId = Storage.getActiveProjectId();
         let loaded = false;
+        const suffix = (window.Paint && window.Paint.I18n) ? window.Paint.I18n.t('app.title_suffix') : '- Paint Canvas Retro';
+
         if (activeId) {
             const proj = Storage.getProject(activeId);
             if (proj) {
@@ -950,7 +978,7 @@ window.Paint.UI = (function () {
                 if (loaded) {
                     const titleInput = document.getElementById('project-title-input');
                     if (titleInput) titleInput.value = proj.title;
-                    document.title = `${proj.title} - Paint Canvas Retro`;
+                    document.title = `${proj.title} ${suffix}`;
                     updateStatusBarDimensions();
                 }
             }
@@ -971,9 +999,12 @@ window.Paint.UI = (function () {
         const Storage = window.Paint.Storage;
         saveCurrentToStorage(false);
 
+        const t = (window.Paint && window.Paint.I18n) ? window.Paint.I18n.t : (k => k);
+        const suffix = (window.Paint && window.Paint.I18n) ? window.Paint.I18n.t('app.title_suffix') : '- Paint Canvas Retro';
+
         const newTitle = await window.Paint.Modal.prompt(
-            'Ingrese el nombre para el nuevo dibujo:',
-            'Nuevo Canvas',
+            t('modal.new_title_prompt'),
+            t('modal.new_title_heading'),
             'DibujoNuevo.png'
         );
 
@@ -984,7 +1015,7 @@ window.Paint.UI = (function () {
 
             const titleInput = document.getElementById('project-title-input');
             if (titleInput) titleInput.value = cleanName;
-            document.title = `${cleanName} - Paint Canvas Retro`;
+            document.title = `${cleanName} ${suffix}`;
 
             currentTabProjectId = null;
             if (Storage) {
@@ -993,7 +1024,7 @@ window.Paint.UI = (function () {
                 if (saved) currentTabProjectId = saved.id;
             }
             updateStatusBarDimensions();
-            updateStatusText(`Nuevo canvas '${cleanName}' creado.`);
+            updateStatusText(t('status.project_new', { title: cleanName }));
         }
     }
 
@@ -1050,12 +1081,14 @@ window.Paint.UI = (function () {
                     Storage.setActiveProjectId(proj.id);
                     const titleInput = document.getElementById('project-title-input');
                     if (titleInput) titleInput.value = proj.title;
-                    document.title = `${proj.title} - Paint Canvas Retro`;
+                    const suffix = (window.Paint && window.Paint.I18n) ? window.Paint.I18n.t('app.title_suffix') : '- Paint Canvas Retro';
+                    document.title = `${proj.title} ${suffix}`;
 
                     await Storage.loadProject(proj, Canvas);
                     updateStatusBarDimensions();
                     closeExplorerModal();
-                    updateStatusText(`Canvas '${proj.title}' cargado.`);
+                    const t = (window.Paint && window.Paint.I18n) ? window.Paint.I18n.t : (k => k);
+                    updateStatusText(t('status.project_loaded', { title: proj.title }));
                 }
             });
         }
@@ -1068,9 +1101,10 @@ window.Paint.UI = (function () {
                 const proj = Storage.getProject(selectedExplorerId);
                 if (!proj) return;
 
+                const t = (window.Paint && window.Paint.I18n) ? window.Paint.I18n.t : (k => k);
                 const confirmed = await window.Paint.Modal.confirm(
-                    `¿Está seguro de que desea eliminar el archivo "${proj.title}"?`,
-                    'Eliminar Canvas'
+                    t('modal.confirm_delete_msg', { title: proj.title }),
+                    t('modal.delete_heading')
                 );
 
                 if (confirmed) {
@@ -1113,7 +1147,8 @@ window.Paint.UI = (function () {
                         const titleInput = document.getElementById('project-title-input');
                         if (titleInput && titleInput.value !== updatedProj.title) {
                             titleInput.value = updatedProj.title;
-                            document.title = `${updatedProj.title} - Paint Canvas Retro`;
+                            const suffix = (window.Paint && window.Paint.I18n) ? window.Paint.I18n.t('app.title_suffix') : '- Paint Canvas Retro';
+                            document.title = `${updatedProj.title} ${suffix}`;
                         }
                     }
                 }
@@ -1127,6 +1162,10 @@ window.Paint.UI = (function () {
         const detailsPane = document.getElementById('exp-details-content');
         const btnOpen = document.getElementById('exp-btn-open');
         const btnDelete = document.getElementById('exp-btn-delete');
+        const t = (window.Paint && window.Paint.I18n) ? window.Paint.I18n.t : (k => k);
+        const lang = (window.Paint && window.Paint.I18n) ? window.Paint.I18n.getLanguage() : 'es';
+        const langMap = { es: 'es-ES', en: 'en-US', de: 'de-DE', fr: 'fr-FR', it: 'it-IT', pt: 'pt-PT' };
+        const dateLocale = langMap[lang] || 'es-ES';
 
         if (!grid) return;
 
@@ -1142,19 +1181,21 @@ window.Paint.UI = (function () {
         grid.innerHTML = '';
 
         if (projects.length === 0) {
-            grid.innerHTML = `<div class="explorer-empty-msg">No se encontraron archivos de canvas guardados.</div>`;
-            if (statusText) statusText.textContent = '0 objetos';
+            grid.innerHTML = `<div class="explorer-empty-msg">${t('explorer.empty_msg')}</div>`;
+            if (statusText) statusText.textContent = t('explorer.objects_count', { count: 0 });
             if (btnOpen) btnOpen.disabled = true;
             if (btnDelete) btnDelete.disabled = true;
-            if (detailsPane) detailsPane.innerHTML = 'No hay archivos para mostrar.';
+            if (detailsPane) detailsPane.innerHTML = t('explorer.details_empty');
             return;
         }
 
-        if (statusText) statusText.textContent = `${projects.length} objeto(s) en LocalStorage`;
+        if (statusText) statusText.textContent = t('explorer.objects_count', { count: projects.length });
 
         if (!selectedExplorerId || !projects.some(p => p.id === selectedExplorerId)) {
             selectedExplorerId = activeId && projects.some(p => p.id === activeId) ? activeId : projects[0].id;
         }
+
+        const badgeOpenText = t('explorer.badge_open');
 
         projects.forEach(p => {
             const isSelected = p.id === selectedExplorerId;
@@ -1164,7 +1205,7 @@ window.Paint.UI = (function () {
             card.className = `file-card ${isSelected ? 'selected' : ''} ${isActiveCanvas ? 'active-canvas' : ''}`;
             card.dataset.id = p.id;
 
-            const dateStr = p.updatedAt ? new Date(p.updatedAt).toLocaleString('es-ES', {
+            const dateStr = p.updatedAt ? new Date(p.updatedAt).toLocaleString(dateLocale, {
                 day: '2-digit', month: '2-digit', year: 'numeric',
                 hour: '2-digit', minute: '2-digit'
             }) : '';
@@ -1172,7 +1213,7 @@ window.Paint.UI = (function () {
             card.innerHTML = `
                 <div class="file-thumb-box">
                     <img src="${p.dataUrl}" class="file-thumb" alt="${p.title}"/>
-                    ${isActiveCanvas ? '<span class="active-badge" title="Canvas actualmente abierto">ABIERTO</span>' : ''}
+                    ${isActiveCanvas ? `<span class="active-badge" title="Canvas">${badgeOpenText}</span>` : ''}
                 </div>
                 <div class="file-card-title" title="${p.title}">${p.title}</div>
                 <div class="file-card-sub">${p.width}x${p.height}px • ${dateStr}</div>
@@ -1202,18 +1243,42 @@ window.Paint.UI = (function () {
         const detailsPane = document.getElementById('exp-details-content');
         const btnOpen = document.getElementById('exp-btn-open');
         const btnDelete = document.getElementById('exp-btn-delete');
+        const t = (window.Paint && window.Paint.I18n) ? window.Paint.I18n.t : (k => k);
+        const lang = (window.Paint && window.Paint.I18n) ? window.Paint.I18n.getLanguage() : 'es';
+        const langMap = { es: 'es-ES', en: 'en-US', de: 'de-DE', fr: 'fr-FR', it: 'it-IT', pt: 'pt-PT' };
+        const dateLocale = langMap[lang] || 'es-ES';
 
         if (btnOpen) btnOpen.disabled = false;
         if (btnDelete) btnDelete.disabled = false;
 
         if (detailsPane && project) {
-            const dateStr = project.updatedAt ? new Date(project.updatedAt).toLocaleString('es-ES') : '-';
+            const dateStr = project.updatedAt ? new Date(project.updatedAt).toLocaleString(dateLocale) : '-';
             detailsPane.innerHTML = `
-                <div class="detail-row"><strong>Nombre:</strong> ${project.title}</div>
-                <div class="detail-row"><strong>Tamaño:</strong> ${project.width} x ${project.height} px</div>
-                <div class="detail-row"><strong>Modificado:</strong> ${dateStr}</div>
+                <div class="detail-row"><strong>${t('explorer.detail_name')}</strong> ${project.title}</div>
+                <div class="detail-row"><strong>${t('explorer.detail_size')}</strong> ${project.width} x ${project.height} px</div>
+                <div class="detail-row"><strong>${t('explorer.detail_modified')}</strong> ${dateStr}</div>
                 <div class="detail-row"><strong>ID:</strong> ${project.id}</div>
             `;
+        }
+    }
+
+    function onLanguageChanged(lang) {
+        const titleInput = document.getElementById('project-title-input');
+        const val = titleInput ? (titleInput.value.trim() || 'Sin título.png') : 'Sin título.png';
+        const t = (window.Paint && window.Paint.I18n) ? window.Paint.I18n.t : null;
+        if (t) {
+            document.title = `${val} ${t('app.title_suffix')}`;
+        }
+
+        const expModal = document.getElementById('explorer-modal');
+        if (expModal && expModal.style.display !== 'none') {
+            const searchInput = document.getElementById('exp-search-input');
+            renderExplorerFileList(searchInput ? searchInput.value : '');
+        }
+
+        const statusMsg = document.getElementById('status-msg');
+        if (statusMsg && t) {
+            statusMsg.textContent = t('status.default');
         }
     }
 
@@ -1223,6 +1288,7 @@ window.Paint.UI = (function () {
         openExplorerModal,
         saveCurrentToStorage,
         updateStatusBarDimensions,
-        updateColorIndicators
+        updateColorIndicators,
+        onLanguageChanged
     };
 })();
