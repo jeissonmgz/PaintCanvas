@@ -125,10 +125,6 @@
                             <svg class="tool-icon" viewBox="0 0 24 24"><path d="M19 11l-8-8-8 8 8 8 8-8z"/><path d="M22 22s-2-2-2-4 2-4 2-4"/></svg>
                             <span class="tool-label">Relleno</span>
                         </button>
-                        <button class="tool-btn" data-tool="zoom" title="Lupa / Zoom (Clic Izq: Acercar, Clic Der: Alejar)">
-                            <svg class="tool-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-                            <span class="tool-label">Zoom</span>
-                        </button>
                     </div>
                 </div>
 
@@ -136,18 +132,57 @@
                 <div class="panel-box tool-options-box">
                     <div class="panel-header">OPCIONES</div>
 
-                    <div class="option-row">
-                        <label for="line-width">Grosor:</label>
-                        <input type="number" id="line-width" class="retro-input" min="1" max="50" value="1"/>
+                    <div class="option-row-group">
+                        <label>Grosor:</label>
+                        <div class="line-width-presets" id="line-width-presets">
+                            <button type="button" class="width-preset-btn active" data-width="1" title="Fino (1px)">
+                                <span class="preset-line" style="height: 1px;"></span>
+                            </button>
+                            <button type="button" class="width-preset-btn" data-width="3" title="Mediano (3px)">
+                                <span class="preset-line" style="height: 3px;"></span>
+                            </button>
+                            <button type="button" class="width-preset-btn" data-width="5" title="Grueso (5px)">
+                                <span class="preset-line" style="height: 5px;"></span>
+                            </button>
+                            <button type="button" class="width-preset-btn" data-width="8" title="Muy Grueso (8px)">
+                                <span class="preset-line" style="height: 8px;"></span>
+                            </button>
+                            <button type="button" class="width-preset-btn" data-width="12" title="Extra Grueso (12px)">
+                                <span class="preset-line" style="height: 12px;"></span>
+                            </button>
+                            <button type="button" class="width-preset-btn custom-preset-btn" id="btn-custom-width" title="Personalizado...">
+                                <span>...</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="option-row">
-                        <label for="line-cap">Estilo:</label>
-                        <select id="line-cap" class="retro-select">
-                            <option value="butt">Defecto</option>
-                            <option value="round">Redondo</option>
-                            <option value="square">Ancho</option>
-                        </select>
+                    <div class="option-row" id="opt-custom-width" style="display: none; margin-top: 2px;">
+                        <label for="line-width">Grosor exacto:</label>
+                        <input type="number" id="line-width" class="retro-input" min="1" max="100" value="1"/>
+                    </div>
+
+                    <div class="option-row-group" style="margin-top: 4px;">
+                        <label>Puntas de línea:</label>
+                        <div class="cap-preset-btns" id="line-cap-presets">
+                            <button type="button" class="cap-preset-btn active" data-cap="butt" title="Plano (corte recto)">
+                                <svg viewBox="0 0 24 24" width="16" height="14" stroke="#000" stroke-width="4" stroke-linecap="butt" fill="none">
+                                    <line x1="4" y1="12" x2="20" y2="12" />
+                                </svg>
+                                <span class="cap-label">Plano</span>
+                            </button>
+                            <button type="button" class="cap-preset-btn" data-cap="round" title="Redondo (punta suave)">
+                                <svg viewBox="0 0 24 24" width="16" height="14" stroke="#000" stroke-width="4" stroke-linecap="round" fill="none">
+                                    <line x1="5" y1="12" x2="19" y2="12" />
+                                </svg>
+                                <span class="cap-label">Redondo</span>
+                            </button>
+                            <button type="button" class="cap-preset-btn" data-cap="square" title="Cuadrado (punta ancha)">
+                                <svg viewBox="0 0 24 24" width="16" height="14" stroke="#000" stroke-width="4" stroke-linecap="square" fill="none">
+                                    <line x1="6" y1="12" x2="18" y2="12" />
+                                </svg>
+                                <span class="cap-label">Cuadrado</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="option-row" id="opt-polygon-sides" style="display: none;">
@@ -227,10 +262,25 @@
 
             <!-- Color Palette Bar -->
             <div class="color-bar">
-                <!-- Dual Color Preview -->
-                <div class="color-preview-container" title="Color Primario (Frontal) / Color Secundario (Fondo)">
-                    <div class="color-box bg-box" id="bg-color-box"></div>
-                    <div class="color-box fg-box" id="fg-color-box"></div>
+                <!-- Dual Color Rows Selector Box -->
+                <div class="color-rows-container">
+                    <div class="color-row-item active" id="row-fg" title="Color 1: Clic para editar | Clic izq en paleta">
+                        <span class="row-indicator">1°</span>
+                        <div class="color-box" id="fg-color-box" style="background-color: #000000;"></div>
+                        <div class="row-info">
+                            <span class="row-title">Contorno / Texto</span>
+                            <input type="color" id="fg-custom-color" class="color-picker-mini" value="#000000" title="Elegir Color 1"/>
+                        </div>
+                    </div>
+
+                    <div class="color-row-item" id="row-bg" title="Color 2: Clic para editar | Clic der en paleta">
+                        <span class="row-indicator">2°</span>
+                        <div class="color-box" id="bg-color-box" style="background-color: #ffffff;"></div>
+                        <div class="row-info">
+                            <span class="row-title">Relleno / Fondo</span>
+                            <input type="color" id="bg-custom-color" class="color-picker-mini" value="#ffffff" title="Elegir Color 2"/>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 28 Color Swatches Grid -->
@@ -238,22 +288,14 @@
                     <!-- Dynamic Swatches populated by JS -->
                 </div>
 
-                <!-- Color Controls -->
-                <div class="color-controls">
-                    <div class="radio-group">
-                        <label><input type="radio" name="colorTarget" id="mode-fg" checked/> Contorno (1er Color)</label>
-                        <label><input type="radio" name="colorTarget" id="mode-bg"/> Relleno (2do Color)</label>
+                <!-- Transparency Control Box -->
+                <div class="transparency-control-group" title="Nivel de transparencia del color (0% a 100%)">
+                    <div class="transparency-label-row">
+                        <label for="opacity-slider" class="transparency-title">Opacidad</label>
+                        <span id="opacity-value" class="transparency-val">(100%)</span>
                     </div>
-
-                    <div class="option-row">
-                        <label>Color Custom:</label>
-                        <input type="color" id="custom-color-input" value="#000000"/>
-                    </div>
-
-                    <div class="option-row">
-                        <label>Alfa:</label>
-                        <input type="range" id="opacity-slider" min="0" max="1" step="0.05" value="1"/>
-                        <span id="opacity-value" style="font-size: 10px;">100%</span>
+                    <div class="transparency-slider-row">
+                        <input type="range" id="opacity-slider" class="retro-range" min="0" max="1" step="0.05" value="1"/>
                     </div>
                 </div>
             </div>

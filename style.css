@@ -407,34 +407,73 @@ body {
     gap: 12px;
 }
 
-/* Dual Color Box Indicator */
-.color-preview-container {
-    position: relative;
-    width: 36px;
-    height: 36px;
+/* Dual Row Color Selector Box */
+.color-rows-container {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 3px;
+    background: #ece9d8;
+    border: 2px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.color-row-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.color-row-item:hover {
+    background-color: #f5f2e6;
+}
+
+.color-row-item.active {
+    background-color: #ffffff;
+    border-color: #808080 #ffffff #ffffff #808080;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.row-indicator {
+    font-size: 10px;
+    font-weight: bold;
+    color: #000080;
+    width: 14px;
 }
 
 .color-box {
-    position: absolute;
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
     border: 2px solid;
     border-color: #808080 #ffffff #ffffff #808080;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.row-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.row-title {
+    font-size: 10px;
+    font-family: 'Tahoma', sans-serif;
+    color: #000;
+    white-space: nowrap;
+}
+
+.color-picker-mini {
+    width: 22px;
+    height: 18px;
+    padding: 0;
+    border: 1px solid #808080;
     cursor: pointer;
-}
-
-.color-box.bg-box {
-    bottom: 0;
-    right: 0;
-    background-color: #c0c0c0;
-    z-index: 1;
-}
-
-.color-box.fg-box {
-    top: 0;
-    left: 0;
-    background-color: #000000;
-    z-index: 2;
+    background: none;
 }
 
 /* Swatch Grid */
@@ -458,26 +497,51 @@ body {
     z-index: 5;
 }
 
-.color-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-left: 1px solid #aca899;
-    padding-left: 10px;
-}
-
-.radio-group {
+/* Transparency Control Group Box */
+.transparency-control-group {
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    font-size: 10px;
+    gap: 3px;
+    padding: 3px 8px;
+    background: #ece9d8;
+    border: 2px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+    user-select: none;
+    min-width: 125px;
+    box-sizing: border-box;
 }
 
-.radio-group label {
+.transparency-label-row {
     display: flex;
     align-items: center;
-    gap: 3px;
+    justify-content: space-between;
+    gap: 4px;
+    font-size: 10px;
+    font-family: 'Tahoma', sans-serif;
+    color: #000000;
+}
+
+.transparency-title {
+    font-weight: bold;
+}
+
+.transparency-val {
+    color: #000080;
+    font-weight: bold;
+}
+
+.transparency-slider-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.retro-range {
+    width: 100%;
+    margin: 0;
     cursor: pointer;
+    accent-color: #000080;
+    height: 14px;
 }
 
 /* --------------------------------------------------------------------------
@@ -587,6 +651,105 @@ body {
     border-color: #808080 #ffffff #ffffff #808080;
     padding-top: 4px;
     padding-left: 13px;
+}
+
+/* --------------------------------------------------------------------------
+   Line Width Presets (Grosor Gamut)
+   -------------------------------------------------------------------------- */
+.option-row-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.line-width-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    background: #ece9d8;
+    padding: 2px;
+    border: 2px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.width-preset-btn {
+    flex: 1;
+    min-width: 20px;
+    height: 22px;
+    background: #ece9d8;
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0 2px;
+}
+
+.width-preset-btn:hover {
+    background-color: #ffffff;
+}
+
+.width-preset-btn.active {
+    background-color: #ffffff;
+    border-color: #808080 #ffffff #ffffff #808080;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.preset-line {
+    width: 80%;
+    background-color: #000000;
+    display: block;
+    border-radius: 1px;
+}
+
+.custom-preset-btn span {
+    font-size: 10px;
+    font-weight: bold;
+    color: #000080;
+}
+
+/* Line Cap Graphical Preset Buttons */
+.cap-preset-btns {
+    display: flex;
+    gap: 2px;
+    background: #ece9d8;
+    padding: 2px;
+    border: 2px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.cap-preset-btn {
+    flex: 1;
+    height: 28px;
+    background: #ece9d8;
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 1px 2px;
+    gap: 1px;
+}
+
+.cap-preset-btn:hover {
+    background-color: #ffffff;
+}
+
+.cap-preset-btn.active {
+    background-color: #ffffff;
+    border-color: #808080 #ffffff #ffffff #808080;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.cap-label {
+    font-size: 9px;
+    font-family: 'Tahoma', sans-serif;
+    color: #000000;
+    line-height: 1;
 }
 
 /* --------------------------------------------------------------------------

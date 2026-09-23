@@ -122,17 +122,52 @@ window.Paint.UI = (function () {
     }
 
     function setupToolOptions() {
-        // Line Width
+        // Line Width Presets & Custom Input
+        const presetBtns = document.querySelectorAll('.width-preset-btn');
+        const customContainer = document.getElementById('opt-custom-width');
         const widthInput = document.getElementById('line-width');
+
+        presetBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                presetBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                if (btn.id === 'btn-custom-width') {
+                    if (customContainer) customContainer.style.display = 'flex';
+                    if (widthInput) {
+                        widthInput.focus();
+                        widthInput.select();
+                        Tools.setLineWidth(widthInput.value);
+                    }
+                } else {
+                    if (customContainer) customContainer.style.display = 'none';
+                    const val = btn.dataset.width;
+                    if (val) {
+                        Tools.setLineWidth(val);
+                        if (widthInput) widthInput.value = val;
+                    }
+                }
+            });
+        });
+
         if (widthInput) {
-            widthInput.addEventListener('change', (e) => Tools.setLineWidth(e.target.value));
+            const handleCustomChange = (e) => Tools.setLineWidth(e.target.value);
+            widthInput.addEventListener('input', handleCustomChange);
+            widthInput.addEventListener('change', handleCustomChange);
         }
 
-        // Line Cap Style
-        const capSelect = document.getElementById('line-cap');
-        if (capSelect) {
-            capSelect.addEventListener('change', (e) => Tools.setLineCap(e.target.value));
-        }
+        // Line Cap Style Buttons
+        const capBtns = document.querySelectorAll('.cap-preset-btn');
+        capBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                capBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const cap = btn.dataset.cap;
+                if (cap) {
+                    Tools.setLineCap(cap);
+                }
+            });
+        });
 
         // Polygon sides
         const sidesInput = document.getElementById('polygon-sides');
@@ -230,9 +265,9 @@ window.Paint.UI = (function () {
             const swatch = document.createElement('div');
             swatch.className = 'color-swatch';
             swatch.style.backgroundColor = hex;
-            swatch.title = `${hex} (Clic izq: Color activo | Clic der: Color de relleno)`;
+            swatch.title = `${hex} (Clic izq: Fila activa | Clic der: Color 2 Relleno)`;
 
-            // Left click -> Update color for currently active target mode (Contorno vs Relleno)
+            // Left click -> Update active row color (Color 1 or Color 2 depending on row active state)
             swatch.addEventListener('click', () => {
                 Palette.setActiveColorHex(hex);
                 if (Palette.getMode() === 'background') {
@@ -241,13 +276,11 @@ window.Paint.UI = (function () {
                 updateColorIndicators();
             });
 
-            // Right click -> Background/Fill color
+            // Right click -> Set Color 2 (Relleno / Fondo)
             swatch.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 Palette.setBackgroundColor(hex);
                 Palette.setMode('background');
-                const modeBg = document.getElementById('mode-bg');
-                if (modeBg) modeBg.checked = true;
                 enableFillOption();
                 updateColorIndicators();
             });
@@ -255,53 +288,41 @@ window.Paint.UI = (function () {
             container.appendChild(swatch);
         });
 
-        // Custom Color Picker input
-        const customColorInput = document.getElementById('custom-color-input');
-        if (customColorInput) {
-            customColorInput.addEventListener('input', (e) => {
-                Palette.setActiveColorHex(e.target.value);
-                if (Palette.getMode() === 'background') {
-                    enableFillOption();
-                }
+        // Individual Color Pickers for Row 1 & Row 2
+        const fgCustomColor = document.getElementById('fg-custom-color');
+        if (fgCustomColor) {
+            fgCustomColor.addEventListener('input', (e) => {
+                Palette.setForegroundColor(e.target.value);
+                Palette.setMode('foreground');
                 updateColorIndicators();
             });
         }
 
-        // Mode Radio buttons
-        const modeFg = document.getElementById('mode-fg');
-        const modeBg = document.getElementById('mode-bg');
-
-        if (modeFg && modeBg) {
-            modeFg.addEventListener('change', () => {
-                if (modeFg.checked) Palette.setMode('foreground');
-                if (customColorInput) customColorInput.value = Palette.getForegroundColor();
-            });
-            modeBg.addEventListener('change', () => {
-                if (modeBg.checked) {
-                    Palette.setMode('background');
-                    enableFillOption();
-                }
-                if (customColorInput) customColorInput.value = Palette.getBackgroundColor();
-            });
-        }
-
-        // Clicking dual color boxes directly changes active target mode
-        const fgBox = document.getElementById('fg-color-box');
-        const bgBox = document.getElementById('bg-color-box');
-
-        if (fgBox) {
-            fgBox.addEventListener('click', () => {
-                Palette.setMode('foreground');
-                if (modeFg) modeFg.checked = true;
-                if (customColorInput) customColorInput.value = Palette.getForegroundColor();
-            });
-        }
-        if (bgBox) {
-            bgBox.addEventListener('click', () => {
+        const bgCustomColor = document.getElementById('bg-custom-color');
+        if (bgCustomColor) {
+            bgCustomColor.addEventListener('input', (e) => {
+                Palette.setBackgroundColor(e.target.value);
                 Palette.setMode('background');
-                if (modeBg) modeBg.checked = true;
                 enableFillOption();
-                if (customColorInput) customColorInput.value = Palette.getBackgroundColor();
+                updateColorIndicators();
+            });
+        }
+
+        // Clicking Row 1 / Row 2 toggles active editing mode
+        const rowFg = document.getElementById('row-fg');
+        const rowBg = document.getElementById('row-bg');
+
+        if (rowFg) {
+            rowFg.addEventListener('click', () => {
+                Palette.setMode('foreground');
+                updateColorIndicators();
+            });
+        }
+        if (rowBg) {
+            rowBg.addEventListener('click', () => {
+                Palette.setMode('background');
+                enableFillOption();
+                updateColorIndicators();
             });
         }
 
@@ -311,7 +332,8 @@ window.Paint.UI = (function () {
         if (opacityInput) {
             opacityInput.addEventListener('input', (e) => {
                 Palette.setOpacity(e.target.value);
-                if (opacityVal) opacityVal.textContent = `${Math.round(e.target.value * 100)}%`;
+                if (opacityVal) opacityVal.textContent = `(${Math.round(e.target.value * 100)}%)`;
+                if (Tools && Tools.updateTextOverlayStyles) Tools.updateTextOverlayStyles(Palette);
             });
         }
 
@@ -321,11 +343,20 @@ window.Paint.UI = (function () {
     function updateColorIndicators() {
         const fgBox = document.getElementById('fg-color-box');
         const bgBox = document.getElementById('bg-color-box');
-        const customColorInput = document.getElementById('custom-color-input');
+        const fgCustomColor = document.getElementById('fg-custom-color');
+        const bgCustomColor = document.getElementById('bg-custom-color');
+        const rowFg = document.getElementById('row-fg');
+        const rowBg = document.getElementById('row-bg');
+
+        const isFg = Palette.getMode() === 'foreground';
 
         if (fgBox) fgBox.style.backgroundColor = Palette.getForegroundColor();
         if (bgBox) bgBox.style.backgroundColor = Palette.getBackgroundColor();
-        if (customColorInput) customColorInput.value = Palette.getActiveColorHex();
+        if (fgCustomColor) fgCustomColor.value = Palette.getForegroundColor();
+        if (bgCustomColor) bgCustomColor.value = Palette.getBackgroundColor();
+
+        if (rowFg) rowFg.classList.toggle('active', isFg);
+        if (rowBg) rowBg.classList.toggle('active', !isFg);
 
         if (Tools && Tools.updateTextOverlayStyles) {
             Tools.updateTextOverlayStyles(Palette);

@@ -159,6 +159,7 @@ window.Paint.Tools = (function () {
         activeTextOverlay.style.textAlign = textAlign;
         activeTextOverlay.style.color = fgColor;
         activeTextOverlay.style.backgroundColor = fillEnabled ? bgColor : 'transparent';
+        activeTextOverlay.style.textShadow = strokeEnabled ? `-1px -1px 0 ${bgColor}, 1px -1px 0 ${bgColor}, -1px 1px 0 ${bgColor}, 1px 1px 0 ${bgColor}` : 'none';
 
         autoFitTextarea(activeTextOverlay);
     }
@@ -200,6 +201,7 @@ window.Paint.Tools = (function () {
                     lineX = textOverlayCoords.x + boxWidth - padLeft;
                 }
 
+                // 1. Background Fill (Relleno de Fondo en Color 2)
                 if (fillEnabled) {
                     ctx.fillStyle = bgColor;
                     const metrics = ctx.measureText(line);
@@ -209,15 +211,18 @@ window.Paint.Tools = (function () {
                     ctx.fillRect(bgX, lineY, metrics.width || 10, lineHeight);
                 }
 
-                ctx.fillStyle = fgColor;
-                ctx.fillText(line, lineX, lineY);
-
+                // 2. Letter Contour / Outline (Contorno de letras en Color 2)
                 if (strokeEnabled && lineWidth > 0) {
                     ctx.strokeStyle = bgColor;
-                    ctx.lineWidth = 1;
+                    ctx.lineWidth = Math.max(1, Math.min(4, lineWidth * 2));
                     ctx.strokeText(line, lineX, lineY);
                 }
 
+                // 3. Main Text Letters (Color 1)
+                ctx.fillStyle = fgColor;
+                ctx.fillText(line, lineX, lineY);
+
+                // 4. Strikethrough / Subrayado (Linea en Color 1)
                 if (isStrikethrough && line.length > 0) {
                     const metrics = ctx.measureText(line);
                     const textWidth = metrics.width;
