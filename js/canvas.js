@@ -189,6 +189,8 @@ window.Paint.Canvas = (function () {
     function loadProjectImage(img, width, height) {
         if (!canvas || !ctx || !img) return;
 
+        isLoading = true;
+
         // Reset zoom level to 100%
         zoomLevel = 1.0;
         applyZoom();
@@ -203,11 +205,16 @@ window.Paint.Canvas = (function () {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
 
-        // Reset history stack for the loaded project
+        // Reset history stack for the loaded project baseline
         historyStack = [];
         historyStep = -1;
         takeSnapshot();
-        saveHistory();
+
+        const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        historyStack.push(data);
+        historyStep = 0;
+
+        isLoading = false;
     }
 
     function resize(newWidth, newHeight) {
@@ -272,6 +279,35 @@ window.Paint.Canvas = (function () {
         saveHistory();
     }
 
+    let onCanvasChangeCallback = null;
+    let changeDebounceTimer = null;
+    let isLoading = true;
+
+    function setOnCanvasChange(cb) {
+        onCanvasChangeCallback = cb;
+    }
+
+    function setLoading(loadingState) {
+        isLoading = !!loadingState;
+    }
+
+    function isLoadingState() {
+        return isLoading;
+    }
+
+    function notifyCanvasChanged() {
+        if (isLoading) return;
+
+        if (changeDebounceTimer) clearTimeout(changeDebounceTimer);
+        changeDebounceTimer = setTimeout(() => {
+            if (typeof onCanvasChangeCallback === 'function') {
+                onCanvasChangeCallback();
+            } else if (window.Paint && window.Paint.UI && window.Paint.UI.saveCurrentToStorage) {
+                window.Paint.UI.saveCurrentToStorage(false);
+            }
+        }, 100);
+    }
+
     function saveHistory() {
         if (!ctx || !canvas) return;
         // Truncate history after current step
@@ -283,6 +319,7 @@ window.Paint.Canvas = (function () {
         } else {
             historyStep++;
         }
+        notifyCanvasChanged();
     }
 
     function undo() {
@@ -291,6 +328,7 @@ window.Paint.Canvas = (function () {
             const data = historyStack[historyStep];
             ctx.putImageData(data, 0, 0);
             takeSnapshot();
+            notifyCanvasChanged();
             return true;
         }
         return false;
@@ -302,6 +340,7 @@ window.Paint.Canvas = (function () {
             const data = historyStack[historyStep];
             ctx.putImageData(data, 0, 0);
             takeSnapshot();
+            notifyCanvasChanged();
             return true;
         }
         return false;
@@ -347,9 +386,12 @@ window.Paint.Canvas = (function () {
         resetZoom,
         getZoom,
         loadProjectImage,
+        setLoading,
+        isLoadingState,
         resize,
         expandDirection,
         saveHistory,
+        setOnCanvasChange,
         undo,
         redo,
         exportImage,

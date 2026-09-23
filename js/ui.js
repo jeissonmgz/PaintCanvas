@@ -25,6 +25,10 @@ window.Paint.UI = (function () {
         setupExplorerModalEvents();
         setupKeyboardShortcuts();
         setupDragAndDrop();
+        setupMultiTabSync();
+        if (Canvas && Canvas.setOnCanvasChange) {
+            Canvas.setOnCanvasChange(() => saveCurrentToStorage(false));
+        }
         updateStatusBarDimensions();
     }
 
@@ -903,6 +907,7 @@ window.Paint.UI = (function () {
     // RETRO FILE EXPLORER & STORAGE HELPERS
     // --------------------------------------------------------------------------
     let selectedExplorerId = null;
+    let currentTabProjectId = null;
 
     function saveCurrentToStorage(showNotification = true) {
         const Storage = window.Paint.Storage;
@@ -910,9 +915,16 @@ window.Paint.UI = (function () {
         const title = titleInput ? titleInput.value : 'Sin título.png';
         const canvas = Canvas.getCanvas();
 
+        if (Canvas && Canvas.isLoadingState && Canvas.isLoadingState()) {
+            return null; // Block auto-saving while canvas is initializing or loading a project
+        }
+
         if (Storage && canvas) {
-            const activeId = Storage.getActiveProjectId();
+            const activeId = currentTabProjectId || Storage.getActiveProjectId();
             const saved = Storage.saveProject(canvas, title, activeId);
+            if (saved) {
+                currentTabProjectId = saved.id;
+            }
             if (saved && showNotification) {
                 updateStatusText(`Proyecto '${saved.title}' guardado correctamente en LocalStorage.`);
                 setTimeout(() => {
@@ -933,6 +945,7 @@ window.Paint.UI = (function () {
         if (activeId) {
             const proj = Storage.getProject(activeId);
             if (proj) {
+                currentTabProjectId = proj.id;
                 loaded = await Storage.loadProject(proj, Canvas);
                 if (loaded) {
                     const titleInput = document.getElementById('project-title-input');
@@ -944,9 +957,13 @@ window.Paint.UI = (function () {
         }
 
         if (!loaded) {
+            if (Canvas && Canvas.setLoading) Canvas.setLoading(false);
             const titleInput = document.getElementById('project-title-input');
             const title = titleInput ? titleInput.value : 'Sin título.png';
-            saveCurrentToStorage(false);
+            const saved = saveCurrentToStorage(false);
+            if (saved) currentTabProjectId = saved.id;
+        } else {
+            if (Canvas && Canvas.setLoading) Canvas.setLoading(false);
         }
     }
 
@@ -969,9 +986,11 @@ window.Paint.UI = (function () {
             if (titleInput) titleInput.value = cleanName;
             document.title = `${cleanName} - Paint Canvas Retro`;
 
+            currentTabProjectId = null;
             if (Storage) {
                 Storage.setActiveProjectId(null); // Force new project ID
-                Storage.saveProject(Canvas.getCanvas(), cleanName, null);
+                const saved = Storage.saveProject(Canvas.getCanvas(), cleanName, null);
+                if (saved) currentTabProjectId = saved.id;
             }
             updateStatusBarDimensions();
             updateStatusText(`Nuevo canvas '${cleanName}' creado.`);
@@ -986,7 +1005,7 @@ window.Paint.UI = (function () {
             modal.style.display = 'flex';
             const searchInput = document.getElementById('exp-search-input');
             if (searchInput) searchInput.value = '';
-            selectedExplorerId = window.Paint.Storage.getActiveProjectId();
+            selectedExplorerId = currentTabProjectId || window.Paint.Storage.getActiveProjectId();
             renderExplorerFileList('');
         }
     }
@@ -1027,6 +1046,7 @@ window.Paint.UI = (function () {
                 const Storage = window.Paint.Storage;
                 const proj = Storage.getProject(selectedExplorerId);
                 if (proj) {
+                    currentTabProjectId = proj.id;
                     Storage.setActiveProjectId(proj.id);
                     const titleInput = document.getElementById('project-title-input');
                     if (titleInput) titleInput.value = proj.title;
@@ -1055,6 +1075,9 @@ window.Paint.UI = (function () {
 
                 if (confirmed) {
                     Storage.deleteProject(selectedExplorerId);
+                    if (selectedExplorerId === currentTabProjectId) {
+                        currentTabProjectId = null;
+                    }
                     selectedExplorerId = null;
                     renderExplorerFileList(document.getElementById('exp-search-input')?.value || '');
                 }
@@ -1067,6 +1090,35 @@ window.Paint.UI = (function () {
                 renderExplorerFileList(e.target.value);
             });
         }
+    }
+
+    function setupMultiTabSync() {
+        window.addEventListener('storage', (e) => {
+            const Storage = window.Paint.Storage;
+            if (!Storage) return;
+
+            // Files list or metadata updated in another tab
+            if (e.key === 'paint_canvas_retro_files') {
+                // If Explorer Modal is open, refresh file grid in real time
+                const modal = document.getElementById('explorer-modal');
+                if (modal && modal.style.display !== 'none') {
+                    const searchInput = document.getElementById('exp-search-input');
+                    renderExplorerFileList(searchInput ? searchInput.value : '');
+                }
+
+                // Sync title if current tab's active project was renamed in another tab
+                if (currentTabProjectId) {
+                    const updatedProj = Storage.getProject(currentTabProjectId);
+                    if (updatedProj) {
+                        const titleInput = document.getElementById('project-title-input');
+                        if (titleInput && titleInput.value !== updatedProj.title) {
+                            titleInput.value = updatedProj.title;
+                            document.title = `${updatedProj.title} - Paint Canvas Retro`;
+                        }
+                    }
+                }
+            }
+        });
     }
 
     function renderExplorerFileList(searchTerm = '') {
