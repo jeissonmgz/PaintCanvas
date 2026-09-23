@@ -18,12 +18,13 @@
                     <path d="M12 20h9"/>
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                 </svg>
-                <span>Paint - Canvas Retro</span>
+                <input type="text" id="project-title-input" class="retro-title-input" value="Sin título.png" title="Haz clic para cambiar el nombre del lienzo" spellcheck="false"/>
+                <span class="app-title-suffix">- Paint Canvas Retro</span>
             </div>
             <div class="title-bar-controls">
-                <button class="win-btn" title="Minimizar">_</button>
-                <button class="win-btn" title="Maximizar">□</button>
-                <button class="win-btn close-btn" title="Cerrar">✕</button>
+                <button class="win-btn" id="win-btn-minimize" title="Minimizar (Abrir Explorador de Archivos)">_</button>
+                <button class="win-btn" id="win-btn-maximize" title="Maximizar">□</button>
+                <button class="win-btn close-btn" id="win-btn-close" title="Cerrar (Abrir Explorador de Archivos)">✕</button>
             </div>
         </div>
 
@@ -33,8 +34,10 @@
                 <button class="menu-btn">Archivo</button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" id="action-new">Nuevo <span>Ctrl+N</span></a>
+                    <a class="dropdown-item" id="action-open-explorer">Abrir Explorador... <span>Ctrl+O</span></a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="action-export">Guardar Imagen <span>Ctrl+S</span></a>
+                    <a class="dropdown-item" id="action-save-storage">Guardar Proyecto <span>Ctrl+S</span></a>
+                    <a class="dropdown-item" id="action-export">Exportar Imagen (PNG)...</a>
                 </div>
             </div>
             <div class="menu-item">
@@ -350,8 +353,80 @@
         </div>
     </div>
 
+    <!-- Retro File Explorer Modal Window -->
+    <div class="modal-overlay" id="explorer-modal" style="display: none;">
+        <div class="modal-win explorer-modal-win">
+            <!-- Window Title Bar -->
+            <div class="title-bar">
+                <div class="title-bar-text">
+                    <svg class="title-bar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span>Explorador de Archivos - Mis Diseños</span>
+                </div>
+                <div class="title-bar-controls">
+                    <button class="win-btn close-btn close-explorer-modal" title="Cerrar Explorador">✕</button>
+                </div>
+            </div>
+
+            <!-- Explorer Toolbar -->
+            <div class="explorer-toolbar">
+                <button type="button" class="btn-retro explorer-tool-btn" id="exp-btn-new">
+                    <span>📄 Nuevo Canvas</span>
+                </button>
+                <button type="button" class="btn-retro explorer-tool-btn" id="exp-btn-save-current">
+                    <span>💾 Guardar Actual</span>
+                </button>
+                <button type="button" class="btn-retro explorer-tool-btn" id="exp-btn-delete" disabled>
+                    <span>🗑️ Eliminar</span>
+                </button>
+                <div class="explorer-search-wrap">
+                    <label for="exp-search-input">Buscar:</label>
+                    <input type="text" id="exp-search-input" class="retro-input" placeholder="Filtrar por nombre..."/>
+                </div>
+            </div>
+
+            <!-- Explorer Main Body -->
+            <div class="explorer-body">
+                <!-- Left Sidebar (Windows XP Task / Folder Pane) -->
+                <div class="explorer-sidebar">
+                    <div class="explorer-pane-box">
+                        <div class="explorer-pane-header">TAREAS DE ARCHIVO</div>
+                        <ul class="explorer-pane-links">
+                            <li id="exp-side-new">📄 Crear nuevo dibujo</li>
+                            <li id="exp-side-save">💾 Guardar este proyecto</li>
+                        </ul>
+                    </div>
+                    <div class="explorer-pane-box">
+                        <div class="explorer-pane-header">DETALLES DEL ARCHIVO</div>
+                        <div class="explorer-details-pane" id="exp-details-content">
+                            Seleccione un canvas para ver la información.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right View Area (File Cards Rejilla) -->
+                <div class="explorer-main-view">
+                    <div class="explorer-grid" id="explorer-file-grid">
+                        <!-- Dynamic file cards rendered by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Explorer Modal Footer -->
+            <div class="modal-footer explorer-footer">
+                <div class="explorer-status-text" id="exp-status-text">Cargando archivos...</div>
+                <div class="explorer-footer-btns">
+                    <button class="btn-retro primary-btn" id="exp-btn-open" disabled>Abrir Seleccionado</button>
+                    <button class="btn-retro close-explorer-modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modular Vanilla JavaScript Files -->
     <script src="js/modal.js"></script>
+    <script src="js/storage.js"></script>
     <script src="js/canvas.js"></script>
     <script src="js/tools.js"></script>
     <script src="js/palette.js"></script>

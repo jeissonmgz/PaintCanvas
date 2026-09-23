@@ -13,6 +13,7 @@ window.Paint.UI = (function () {
         if (window.Paint && window.Paint.Modal) {
             window.Paint.Modal.overrideGlobals();
         }
+        setupTitleInput();
         setupMenuDropdowns();
         setupToolButtons();
         setupToolOptions();
@@ -21,8 +22,33 @@ window.Paint.UI = (function () {
         setupResizeHandles();
         setupCardinalExpansionButtons();
         setupWindowControls();
+        setupExplorerModalEvents();
         setupKeyboardShortcuts();
         updateStatusBarDimensions();
+    }
+
+    function setupTitleInput() {
+        const titleInput = document.getElementById('project-title-input');
+        if (!titleInput) return;
+
+        const syncTitle = () => {
+            let val = titleInput.value.trim();
+            if (!val) val = 'Sin título.png';
+            document.title = `${val} - Paint Canvas Retro`;
+            
+            const Storage = window.Paint.Storage;
+            if (Storage && Canvas && Canvas.getCanvas()) {
+                const activeId = Storage.getActiveProjectId();
+                Storage.saveProject(Canvas.getCanvas(), val, activeId);
+            }
+        };
+
+        titleInput.addEventListener('input', () => {
+            const val = titleInput.value.trim() || 'Sin título.png';
+            document.title = `${val} - Paint Canvas Retro`;
+        });
+        titleInput.addEventListener('change', syncTitle);
+        titleInput.addEventListener('blur', syncTitle);
     }
 
     function setupMenuDropdowns() {
@@ -48,22 +74,16 @@ window.Paint.UI = (function () {
 
         // Menu item actions
         const actions = {
-            'action-new': async () => {
-                const confirmed = await window.Paint.Modal.confirm(
-                    '¿Desea crear un nuevo lienzo? Se perderán los cambios no guardados.',
-                    'Nuevo Lienzo'
-                );
-                if (confirmed) {
-                    Canvas.clearCanvas(true);
-                    Canvas.saveHistory();
-                }
-            },
+            'action-new': () => createNewCanvas(),
+            'action-open-explorer': () => openExplorerModal(),
+            'action-save-storage': () => saveCurrentToStorage(true),
             'action-export': () => Canvas.exportImage(),
             'action-undo': () => Canvas.undo(),
             'action-redo': () => Canvas.redo(),
             'action-clear': () => {
                 Canvas.clearCanvas(true);
                 Canvas.saveHistory();
+                saveCurrentToStorage(false);
             },
             'action-zoom-in': () => Canvas.zoomIn(),
             'action-zoom-out': () => Canvas.zoomOut(),
@@ -628,6 +648,24 @@ window.Paint.UI = (function () {
                 return;
             }
 
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                saveCurrentToStorage(true);
+                return;
+            }
+
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'o') {
+                e.preventDefault();
+                openExplorerModal();
+                return;
+            }
+
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') {
+                e.preventDefault();
+                createNewCanvas();
+                return;
+            }
+
             if (Tools.hasSelection()) {
                 if (e.key === 'Delete' || e.key === 'Backspace') {
                     e.preventDefault();
@@ -664,6 +702,24 @@ window.Paint.UI = (function () {
     }
 
     function setupWindowControls() {
+        const btnClose = document.getElementById('win-btn-close') || document.querySelector('.title-bar-controls .close-btn');
+        const btnMinimize = document.getElementById('win-btn-minimize');
+
+        // Close (✕) or Minimize (_) button auto-saves canvas and opens Retro File Explorer modal
+        if (btnClose) {
+            btnClose.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openExplorerModal();
+            });
+        }
+
+        if (btnMinimize) {
+            btnMinimize.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openExplorerModal();
+            });
+        }
+
         const canvasWidthInput = document.getElementById('canvas-w-input');
         const canvasHeightInput = document.getElementById('canvas-h-input');
         const applyResizeBtn = document.getElementById('apply-resize-btn');
@@ -688,6 +744,7 @@ window.Paint.UI = (function () {
                     Canvas.resize(w, h);
                     updateStatusBarDimensions();
                     closeResizeModal();
+                    saveCurrentToStorage(false);
                 } else {
                     window.Paint.Modal.warning(
                         'Por favor ingrese dimensiones válidas en píxeles.',
@@ -737,8 +794,275 @@ window.Paint.UI = (function () {
         if (modal) modal.style.display = 'none';
     }
 
+    // --------------------------------------------------------------------------
+    // RETRO FILE EXPLORER & STORAGE HELPERS
+    // --------------------------------------------------------------------------
+    let selectedExplorerId = null;
+
+    function saveCurrentToStorage(showNotification = true) {
+        const Storage = window.Paint.Storage;
+        const titleInput = document.getElementById('project-title-input');
+        const title = titleInput ? titleInput.value : 'Sin título.png';
+        const canvas = Canvas.getCanvas();
+
+        if (Storage && canvas) {
+            const activeId = Storage.getActiveProjectId();
+            const saved = Storage.saveProject(canvas, title, activeId);
+            if (saved && showNotification) {
+                updateStatusText(`Proyecto '${saved.title}' guardado correctamente en LocalStorage.`);
+                setTimeout(() => {
+                    updateStatusText('Para dibujar, seleccione una herramienta y arrastre sobre el lienzo.');
+                }, 4000);
+            }
+            return saved;
+        }
+        return null;
+    }
+
+    async function loadActiveOrInit() {
+        const Storage = window.Paint.Storage;
+        if (!Storage) return;
+
+        const activeId = Storage.getActiveProjectId();
+        let loaded = false;
+        if (activeId) {
+            const proj = Storage.getProject(activeId);
+            if (proj) {
+                loaded = await Storage.loadProject(proj, Canvas);
+                if (loaded) {
+                    const titleInput = document.getElementById('project-title-input');
+                    if (titleInput) titleInput.value = proj.title;
+                    document.title = `${proj.title} - Paint Canvas Retro`;
+                    updateStatusBarDimensions();
+                }
+            }
+        }
+
+        if (!loaded) {
+            const titleInput = document.getElementById('project-title-input');
+            const title = titleInput ? titleInput.value : 'Sin título.png';
+            saveCurrentToStorage(false);
+        }
+    }
+
+    async function createNewCanvas() {
+        const Storage = window.Paint.Storage;
+        saveCurrentToStorage(false);
+
+        const newTitle = await window.Paint.Modal.prompt(
+            'Ingrese el nombre para el nuevo dibujo:',
+            'Nuevo Canvas',
+            'DibujoNuevo.png'
+        );
+
+        if (newTitle !== null && newTitle !== undefined) {
+            const cleanName = newTitle.trim() || 'DibujoNuevo.png';
+            Canvas.clearCanvas(true);
+            Canvas.saveHistory();
+
+            const titleInput = document.getElementById('project-title-input');
+            if (titleInput) titleInput.value = cleanName;
+            document.title = `${cleanName} - Paint Canvas Retro`;
+
+            if (Storage) {
+                Storage.setActiveProjectId(null); // Force new project ID
+                Storage.saveProject(Canvas.getCanvas(), cleanName, null);
+            }
+            updateStatusBarDimensions();
+            updateStatusText(`Nuevo canvas '${cleanName}' creado.`);
+        }
+    }
+
+    function openExplorerModal() {
+        saveCurrentToStorage(false);
+
+        const modal = document.getElementById('explorer-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            const searchInput = document.getElementById('exp-search-input');
+            if (searchInput) searchInput.value = '';
+            selectedExplorerId = window.Paint.Storage.getActiveProjectId();
+            renderExplorerFileList('');
+        }
+    }
+
+    function closeExplorerModal() {
+        const modal = document.getElementById('explorer-modal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function setupExplorerModalEvents() {
+        const closeBtns = document.querySelectorAll('.close-explorer-modal');
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', closeExplorerModal);
+        });
+
+        const btnNew = document.getElementById('exp-btn-new');
+        const sideNew = document.getElementById('exp-side-new');
+        const handleNew = () => {
+            closeExplorerModal();
+            createNewCanvas();
+        };
+        if (btnNew) btnNew.addEventListener('click', handleNew);
+        if (sideNew) sideNew.addEventListener('click', handleNew);
+
+        const btnSave = document.getElementById('exp-btn-save-current');
+        const sideSave = document.getElementById('exp-side-save');
+        const handleSave = () => {
+            saveCurrentToStorage(true);
+            renderExplorerFileList(document.getElementById('exp-search-input')?.value || '');
+        };
+        if (btnSave) btnSave.addEventListener('click', handleSave);
+        if (sideSave) sideSave.addEventListener('click', handleSave);
+
+        const btnOpen = document.getElementById('exp-btn-open');
+        if (btnOpen) {
+            btnOpen.addEventListener('click', async () => {
+                if (!selectedExplorerId) return;
+                const Storage = window.Paint.Storage;
+                const proj = Storage.getProject(selectedExplorerId);
+                if (proj) {
+                    await Storage.loadProject(proj, Canvas);
+                    const titleInput = document.getElementById('project-title-input');
+                    if (titleInput) titleInput.value = proj.title;
+                    document.title = `${proj.title} - Paint Canvas Retro`;
+                    updateStatusBarDimensions();
+                    closeExplorerModal();
+                    updateStatusText(`Canvas '${proj.title}' cargado.`);
+                }
+            });
+        }
+
+        const btnDelete = document.getElementById('exp-btn-delete');
+        if (btnDelete) {
+            btnDelete.addEventListener('click', async () => {
+                if (!selectedExplorerId) return;
+                const Storage = window.Paint.Storage;
+                const proj = Storage.getProject(selectedExplorerId);
+                if (!proj) return;
+
+                const confirmed = await window.Paint.Modal.confirm(
+                    `¿Está seguro de que desea eliminar el archivo "${proj.title}"?`,
+                    'Eliminar Canvas'
+                );
+
+                if (confirmed) {
+                    Storage.deleteProject(selectedExplorerId);
+                    selectedExplorerId = null;
+                    renderExplorerFileList(document.getElementById('exp-search-input')?.value || '');
+                }
+            });
+        }
+
+        const searchInput = document.getElementById('exp-search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                renderExplorerFileList(e.target.value);
+            });
+        }
+    }
+
+    function renderExplorerFileList(searchTerm = '') {
+        const grid = document.getElementById('explorer-file-grid');
+        const statusText = document.getElementById('exp-status-text');
+        const detailsPane = document.getElementById('exp-details-content');
+        const btnOpen = document.getElementById('exp-btn-open');
+        const btnDelete = document.getElementById('exp-btn-delete');
+
+        if (!grid) return;
+
+        const Storage = window.Paint.Storage;
+        let projects = Storage ? Storage.listProjects() : [];
+        const activeId = Storage ? Storage.getActiveProjectId() : null;
+
+        if (searchTerm.trim()) {
+            const query = searchTerm.trim().toLowerCase();
+            projects = projects.filter(p => p.title.toLowerCase().includes(query));
+        }
+
+        grid.innerHTML = '';
+
+        if (projects.length === 0) {
+            grid.innerHTML = `<div class="explorer-empty-msg">No se encontraron archivos de canvas guardados.</div>`;
+            if (statusText) statusText.textContent = '0 objetos';
+            if (btnOpen) btnOpen.disabled = true;
+            if (btnDelete) btnDelete.disabled = true;
+            if (detailsPane) detailsPane.innerHTML = 'No hay archivos para mostrar.';
+            return;
+        }
+
+        if (statusText) statusText.textContent = `${projects.length} objeto(s) en LocalStorage`;
+
+        if (!selectedExplorerId || !projects.some(p => p.id === selectedExplorerId)) {
+            selectedExplorerId = activeId && projects.some(p => p.id === activeId) ? activeId : projects[0].id;
+        }
+
+        projects.forEach(p => {
+            const isSelected = p.id === selectedExplorerId;
+            const isActiveCanvas = p.id === activeId;
+
+            const card = document.createElement('div');
+            card.className = `file-card ${isSelected ? 'selected' : ''} ${isActiveCanvas ? 'active-canvas' : ''}`;
+            card.dataset.id = p.id;
+
+            const dateStr = p.updatedAt ? new Date(p.updatedAt).toLocaleString('es-ES', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            }) : '';
+
+            card.innerHTML = `
+                <div class="file-thumb-box">
+                    <img src="${p.dataUrl}" class="file-thumb" alt="${p.title}"/>
+                    ${isActiveCanvas ? '<span class="active-badge" title="Canvas actualmente abierto">ABIERTO</span>' : ''}
+                </div>
+                <div class="file-card-title" title="${p.title}">${p.title}</div>
+                <div class="file-card-sub">${p.width}x${p.height}px • ${dateStr}</div>
+            `;
+
+            card.addEventListener('click', () => {
+                grid.querySelectorAll('.file-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedExplorerId = p.id;
+                updateExplorerSelectionDetails(p);
+            });
+
+            card.addEventListener('dblclick', async () => {
+                selectedExplorerId = p.id;
+                if (btnOpen) btnOpen.click();
+            });
+
+            grid.appendChild(card);
+
+            if (isSelected) {
+                updateExplorerSelectionDetails(p);
+            }
+        });
+    }
+
+    function updateExplorerSelectionDetails(project) {
+        const detailsPane = document.getElementById('exp-details-content');
+        const btnOpen = document.getElementById('exp-btn-open');
+        const btnDelete = document.getElementById('exp-btn-delete');
+
+        if (btnOpen) btnOpen.disabled = false;
+        if (btnDelete) btnDelete.disabled = false;
+
+        if (detailsPane && project) {
+            const dateStr = project.updatedAt ? new Date(project.updatedAt).toLocaleString('es-ES') : '-';
+            detailsPane.innerHTML = `
+                <div class="detail-row"><strong>Nombre:</strong> ${project.title}</div>
+                <div class="detail-row"><strong>Tamaño:</strong> ${project.width} x ${project.height} px</div>
+                <div class="detail-row"><strong>Modificado:</strong> ${dateStr}</div>
+                <div class="detail-row"><strong>ID:</strong> ${project.id}</div>
+            `;
+        }
+    }
+
     return {
         init,
+        loadActiveOrInit,
+        openExplorerModal,
+        saveCurrentToStorage,
         updateStatusBarDimensions,
         updateColorIndicators
     };

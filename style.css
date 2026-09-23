@@ -918,3 +918,289 @@ body {
     gap: 8px;
     margin-top: 6px;
 }
+
+/* --------------------------------------------------------------------------
+   Retro Title Input (Inside XP Header)
+   -------------------------------------------------------------------------- */
+.retro-title-input {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 2px;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 11px;
+    padding: 1px 5px;
+    width: 140px;
+    outline: none;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.retro-title-input:hover, .retro-title-input:focus {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: #ffffff;
+    box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+.app-title-suffix {
+    font-size: 11px;
+    opacity: 0.9;
+}
+
+/* --------------------------------------------------------------------------
+   Retro File Explorer Modal Window (Windows XP/98 Style)
+   -------------------------------------------------------------------------- */
+.explorer-modal-win {
+    width: 720px;
+    max-width: 95vw;
+    height: 520px;
+    max-height: 90vh;
+    background-color: #ece9d8;
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    box-shadow: 4px 4px 16px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.explorer-toolbar {
+    background-color: #ece9d8;
+    border-bottom: 1px solid #aca899;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.explorer-tool-btn {
+    padding: 3px 8px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.explorer-tool-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.explorer-search-wrap {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.explorer-search-wrap label {
+    font-weight: bold;
+}
+
+.explorer-search-wrap input {
+    width: 150px;
+    padding: 2px 4px;
+}
+
+.explorer-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    background: #ffffff;
+    border-top: 1px solid #716f64;
+    border-bottom: 1px solid #aca899;
+}
+
+/* Sidebar Task Pane */
+.explorer-sidebar {
+    width: 190px;
+    background: linear-gradient(180deg, #7ba2e7 0%, #6375d6 100%);
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    border-right: 1px solid #aca899;
+}
+
+.explorer-pane-box {
+    background: #ffffff;
+    border: 1px solid #285da7;
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.explorer-pane-header {
+    background: linear-gradient(180deg, #215dc6 0%, #1742a1 100%);
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 10px;
+    padding: 4px 8px;
+    text-shadow: 1px 1px 1px #000;
+}
+
+.explorer-pane-links {
+    list-style: none;
+    padding: 6px 8px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.explorer-pane-links li {
+    color: #0d4493;
+    cursor: pointer;
+    font-size: 11px;
+    text-decoration: underline;
+}
+
+.explorer-pane-links li:hover {
+    color: #e56000;
+}
+
+.explorer-details-pane {
+    padding: 8px;
+    font-size: 10px;
+    color: #333333;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.explorer-details-pane .detail-row {
+    margin-bottom: 4px;
+}
+
+/* Main View Grid */
+.explorer-main-view {
+    flex: 1;
+    background: #ffffff;
+    overflow-y: auto;
+    padding: 12px;
+}
+
+.explorer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+}
+
+.explorer-empty-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 10px;
+    color: #666666;
+    font-style: italic;
+}
+
+/* File Cards */
+.file-card {
+    background: #f8f9fa;
+    border: 1px solid #d0d0d0;
+    border-radius: 3px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    position: relative;
+}
+
+.file-card:hover {
+    background: #e5f1fb;
+    border-color: #70b0e0;
+}
+
+.file-card.selected {
+    background: #316ac5;
+    border-color: #002d73;
+    color: #ffffff;
+}
+
+.file-card.active-canvas {
+    border: 2px solid #ff9900;
+}
+
+.file-thumb-box {
+    width: 100%;
+    height: 85px;
+    background: #ffffff;
+    border: 1px solid #aca899;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.file-thumb {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.active-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: #ff9900;
+    color: #000;
+    font-weight: bold;
+    font-size: 8px;
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.file-card-title {
+    font-weight: bold;
+    font-size: 11px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-card.selected .file-card-title {
+    color: #ffffff;
+}
+
+.file-card-sub {
+    font-size: 9px;
+    color: #666666;
+    margin-top: 2px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-card.selected .file-card-sub {
+    color: #dbe8ff;
+}
+
+/* Explorer Footer */
+.explorer-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background: #ece9d8;
+}
+
+.explorer-status-text {
+    font-size: 11px;
+    color: #444;
+}
+
+.explorer-footer-btns {
+    display: flex;
+    gap: 6px;
+}
