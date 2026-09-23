@@ -80,6 +80,35 @@ window.Paint.UI = (function () {
             'action-export': () => Canvas.exportImage(),
             'action-undo': () => Canvas.undo(),
             'action-redo': () => Canvas.redo(),
+            'action-paste': async () => {
+                try {
+                    if (navigator.clipboard && navigator.clipboard.read) {
+                        const items = await navigator.clipboard.read();
+                        for (const item of items) {
+                            const imgType = item.types.find(t => t.startsWith('image/'));
+                            if (imgType) {
+                                const blob = await item.getType(imgType);
+                                const img = new Image();
+                                img.onload = () => {
+                                    Tools.pasteImageFromClipboard(Canvas, img);
+                                    updateStatusText('Imagen pegada desde el portapapeles. Arrastre los tiradores para cambiar el tamaño.');
+                                };
+                                img.src = URL.createObjectURL(blob);
+                                return;
+                            }
+                        }
+                    }
+                    window.Paint.Modal.info(
+                        'Para pegar una imagen, use el atajo de teclado Ctrl+V (Cmd+V en Mac) cuando tenga una imagen en el portapapeles.',
+                        'Pegar Imagen'
+                    );
+                } catch (err) {
+                    window.Paint.Modal.info(
+                        'Por favor utilice el atajo Ctrl+V (Cmd+V en Mac) para pegar imágenes del portapapeles.',
+                        'Pegar Imagen'
+                    );
+                }
+            },
             'action-clear': () => {
                 Canvas.clearCanvas(true);
                 Canvas.saveHistory();
@@ -673,6 +702,33 @@ window.Paint.UI = (function () {
                 } else if (e.key === 'Escape' || e.key === 'Enter') {
                     e.preventDefault();
                     Tools.commitActiveSelection(Canvas);
+                }
+            }
+        });
+
+        // Global Paste Event (Ctrl+V / Cmd+V for Images/Bitmaps)
+        document.addEventListener('paste', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+            if (!items) return;
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item.type.indexOf('image') !== -1) {
+                    e.preventDefault();
+                    const blob = item.getAsFile();
+                    if (blob) {
+                        const img = new Image();
+                        img.onload = () => {
+                            Tools.pasteImageFromClipboard(Canvas, img);
+                            updateStatusText('Imagen pegada desde el portapapeles. Arrastre los tiradores para cambiar el tamaño.');
+                        };
+                        img.src = URL.createObjectURL(blob);
+                    }
+                    break;
                 }
             }
         });

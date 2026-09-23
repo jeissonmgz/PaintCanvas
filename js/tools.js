@@ -31,14 +31,52 @@ window.Paint.Tools = (function () {
     // Selection State
     let hasSelection = false;
     let isMovingSelection = false;
+    let activeResizeHandle = null; // 'nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'
+    let resizeStartX = 0;
+    let resizeStartY = 0;
+    let origSelX = 0;
+    let origSelY = 0;
+    let origSelW = 0;
+    let origSelH = 0;
     let selectionX = 0;
     let selectionY = 0;
     let selectionWidth = 0;
     let selectionHeight = 0;
-    let selectionCanvas = null; // Offscreen canvas for cut pixels
+    let selectionCanvas = null; // Offscreen canvas for cut or pasted pixels
     let freePoints = [];
     let dragOffsetX = 0;
     let dragOffsetY = 0;
+
+    function getSelectionHandles() {
+        if (!hasSelection) return {};
+        const hSize = 8;
+        const half = hSize / 2;
+        const x = selectionX;
+        const y = selectionY;
+        const w = selectionWidth;
+        const h = selectionHeight;
+
+        return {
+            nw: { x: x - half, y: y - half, w: hSize, h: hSize, cursor: 'nwse-resize' },
+            n:  { x: x + w / 2 - half, y: y - half, w: hSize, h: hSize, cursor: 'ns-resize' },
+            ne: { x: x + w - half, y: y - half, w: hSize, h: hSize, cursor: 'nesw-resize' },
+            e:  { x: x + w - half, y: y + h / 2 - half, w: hSize, h: hSize, cursor: 'ew-resize' },
+            se: { x: x + w - half, y: y + h - half, w: hSize, h: hSize, cursor: 'nwse-resize' },
+            s:  { x: x + w / 2 - half, y: y + h - half, w: hSize, h: hSize, cursor: 'ns-resize' },
+            sw: { x: x - half, y: y + h - half, w: hSize, h: hSize, cursor: 'nesw-resize' },
+            w:  { x: x - half, y: y + h / 2 - half, w: hSize, h: hSize, cursor: 'ew-resize' }
+        };
+    }
+
+    function getHandleAtCoords(cx, cy) {
+        const handles = getSelectionHandles();
+        for (const [name, rect] of Object.entries(handles)) {
+            if (cx >= rect.x && cx <= rect.x + rect.w && cy >= rect.y && cy <= rect.y + rect.h) {
+                return name;
+            }
+        }
+        return null;
+    }
 
     function setTool(toolName, canvasManager, paletteManager) {
         if (hasSelection && toolName !== currentTool) {
@@ -256,23 +294,83 @@ window.Paint.Tools = (function () {
         if (!hasSelection || !selectionCanvas || !canvasManager) return;
         const ctx = canvasManager.getContext();
         canvasManager.restoreSnapshot();
-        ctx.drawImage(selectionCanvas, selectionX, selectionY);
+
+        // Draw scaled selection canvas onto base canvas
+        ctx.drawImage(
+            selectionCanvas,
+            0, 0, selectionCanvas.width, selectionCanvas.height,
+            selectionX, selectionY, selectionWidth, selectionHeight
+        );
+
         hasSelection = false;
         isMovingSelection = false;
+        activeResizeHandle = null;
         selectionCanvas = null;
+
         canvasManager.takeSnapshot();
         canvasManager.saveHistory();
+
+        if (window.Paint && window.Paint.UI && window.Paint.UI.saveCurrentToStorage) {
+            window.Paint.UI.saveCurrentToStorage(false);
+        }
     }
 
     function deleteActiveSelection(canvasManager) {
         if (!hasSelection || !canvasManager) return;
         hasSelection = false;
         isMovingSelection = false;
+        activeResizeHandle = null;
         selectionCanvas = null;
+
         const ctx = canvasManager.getContext();
         canvasManager.restoreSnapshot();
         canvasManager.takeSnapshot();
         canvasManager.saveHistory();
+    }
+
+    function pasteImageFromClipboard(canvasManager, img) {
+        if (!canvasManager || !img) return;
+
+        if (hasSelection) {
+            commitActiveSelection(canvasManager);
+        }
+
+        const canvas = canvasManager.getCanvas();
+        if (!canvas) return;
+
+        // Auto switch to selection tool
+        currentTool = 'select-rect';
+        const toolBtns = document.querySelectorAll('.tool-btn');
+        toolBtns.forEach(b => b.classList.toggle('active', b.dataset.tool === 'select-rect'));
+
+        let w = img.width || 200;
+        let h = img.height || 200;
+        const maxW = canvas.width * 0.85;
+        const maxH = canvas.height * 0.85;
+
+        if (w > maxW || h > maxH) {
+            const ratio = Math.min(maxW / w, maxH / h);
+            w = Math.round(w * ratio);
+            h = Math.round(h * ratio);
+        }
+
+        selectionX = Math.round((canvas.width - w) / 2);
+        selectionY = Math.round((canvas.height - h) / 2);
+        selectionWidth = w;
+        selectionHeight = h;
+
+        selectionCanvas = document.createElement('canvas');
+        selectionCanvas.width = img.width || w;
+        selectionCanvas.height = img.height || h;
+        const sCtx = selectionCanvas.getContext('2d');
+        sCtx.drawImage(img, 0, 0);
+
+        hasSelection = true;
+        isMovingSelection = false;
+        activeResizeHandle = null;
+
+        canvasManager.takeSnapshot();
+        drawFloatingSelection(canvasManager);
     }
 
     function cutSelection(canvasManager, type, x1, y1, x2, y2, points, paletteManager) {
@@ -354,8 +452,12 @@ window.Paint.Tools = (function () {
         canvasManager.restoreSnapshot();
         const ctx = canvasManager.getContext();
 
-        // Draw cut pixels at current selection position
-        ctx.drawImage(selectionCanvas, selectionX, selectionY);
+        // Draw scaled selection canvas
+        ctx.drawImage(
+            selectionCanvas,
+            0, 0, selectionCanvas.width, selectionCanvas.height,
+            selectionX, selectionY, selectionWidth, selectionHeight
+        );
 
         // Draw animated/dashed marquee box border
         ctx.save();
@@ -366,6 +468,17 @@ window.Paint.Tools = (function () {
         ctx.strokeStyle = '#ffffff';
         ctx.lineDashOffset = 4;
         ctx.strokeRect(selectionX, selectionY, selectionWidth, selectionHeight);
+
+        // Draw 8 retro control handle boxes (white square with 1px black outline)
+        const handles = getSelectionHandles();
+        Object.values(handles).forEach(h => {
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#000000';
+            ctx.setLineDash([]);
+            ctx.fillRect(h.x, h.y, h.w, h.h);
+            ctx.strokeRect(h.x, h.y, h.w, h.h);
+        });
+
         ctx.restore();
     }
 
@@ -546,11 +659,22 @@ window.Paint.Tools = (function () {
 
         const coords = canvasManager.getCoordinates(e);
 
-        // Handle selection tool click
-        if (currentTool === 'select-rect' || currentTool === 'select-free') {
-            // Clicked inside active floating selection -> start dragging selection
-            if (hasSelection &&
-                coords.x >= selectionX && coords.x <= selectionX + selectionWidth &&
+        if (hasSelection) {
+            // Click on one of 8 resize handles -> start resizing selection
+            const handle = getHandleAtCoords(coords.x, coords.y);
+            if (handle) {
+                activeResizeHandle = handle;
+                resizeStartX = coords.x;
+                resizeStartY = coords.y;
+                origSelX = selectionX;
+                origSelY = selectionY;
+                origSelW = selectionWidth;
+                origSelH = selectionHeight;
+                return;
+            }
+
+            // Click inside active floating selection -> start moving selection
+            if (coords.x >= selectionX && coords.x <= selectionX + selectionWidth &&
                 coords.y >= selectionY && coords.y <= selectionY + selectionHeight) {
                 isMovingSelection = true;
                 dragOffsetX = coords.x - selectionX;
@@ -558,11 +682,11 @@ window.Paint.Tools = (function () {
                 return;
             }
 
-            // Clicked outside active selection -> commit selection to canvas
-            if (hasSelection) {
-                commitActiveSelection(canvasManager);
-            }
+            // Click outside active selection -> commit selection to base canvas
+            commitActiveSelection(canvasManager);
+        }
 
+        if (currentTool === 'select-rect' || currentTool === 'select-free') {
             startX = coords.x;
             startY = coords.y;
             lastX = coords.x;
@@ -570,8 +694,6 @@ window.Paint.Tools = (function () {
             freePoints = [{ x: coords.x, y: coords.y }];
             isDrawing = true;
             return;
-        } else if (hasSelection) {
-            commitActiveSelection(canvasManager);
         }
 
         startX = coords.x;
@@ -650,8 +772,49 @@ window.Paint.Tools = (function () {
         const coords = canvasManager.getCoordinates(e);
         const currentX = coords.x;
         const currentY = coords.y;
+        const canvasElement = canvasManager.getCanvas();
 
-        // Dragging floating selection
+        // 1. Dragging a resize handle
+        if (hasSelection && activeResizeHandle) {
+            const dx = currentX - resizeStartX;
+            const dy = currentY - resizeStartY;
+            const minSize = 10;
+
+            let newX = origSelX;
+            let newY = origSelY;
+            let newW = origSelW;
+            let newH = origSelH;
+
+            if (activeResizeHandle.includes('e')) {
+                newW = Math.max(minSize, origSelW + dx);
+            }
+            if (activeResizeHandle.includes('s')) {
+                newH = Math.max(minSize, origSelH + dy);
+            }
+            if (activeResizeHandle.includes('w')) {
+                const possibleW = origSelW - dx;
+                if (possibleW >= minSize) {
+                    newW = possibleW;
+                    newX = origSelX + dx;
+                }
+            }
+            if (activeResizeHandle.includes('n')) {
+                const possibleH = origSelH - dy;
+                if (possibleH >= minSize) {
+                    newH = possibleH;
+                    newY = origSelY + dy;
+                }
+            }
+
+            selectionX = newX;
+            selectionY = newY;
+            selectionWidth = newW;
+            selectionHeight = newH;
+            drawFloatingSelection(canvasManager);
+            return;
+        }
+
+        // 2. Dragging floating selection position
         if (hasSelection && isMovingSelection) {
             selectionX = currentX - dragOffsetX;
             selectionY = currentY - dragOffsetY;
@@ -685,6 +848,22 @@ window.Paint.Tools = (function () {
             }
             ctx.restore();
             return;
+        }
+
+        // Update cursor dynamically when hovering over selection box or handles
+        if (hasSelection && canvasElement && !isDrawing) {
+            const handle = getHandleAtCoords(currentX, currentY);
+            if (handle) {
+                const handles = getSelectionHandles();
+                canvasElement.style.cursor = handles[handle].cursor;
+            } else if (currentX >= selectionX && currentX <= selectionX + selectionWidth &&
+                       currentY >= selectionY && currentY <= selectionY + selectionHeight) {
+                canvasElement.style.cursor = 'move';
+            } else {
+                canvasElement.style.cursor = '';
+            }
+        } else if (canvasElement && !isDrawing && !hasSelection) {
+            canvasElement.style.cursor = '';
         }
 
         if (!isDrawing) {
@@ -746,6 +925,12 @@ window.Paint.Tools = (function () {
     function onMouseUp(e, canvasManager, paletteManager) {
         if (currentTool === 'zoom') return;
 
+        if (activeResizeHandle) {
+            activeResizeHandle = null;
+            drawFloatingSelection(canvasManager);
+            return;
+        }
+
         if (isMovingSelection) {
             isMovingSelection = false;
             drawFloatingSelection(canvasManager);
@@ -781,40 +966,38 @@ window.Paint.Tools = (function () {
         const endY = coords.y;
         const ctx = canvasManager.getContext();
 
-        if (currentTool === 'pencil' || currentTool === 'eraser') {
-            canvasManager.takeSnapshot();
-            canvasManager.saveHistory();
-            if (canvasManager.isGuidesVisible()) {
-                canvasManager.drawGuides(endX, endY);
-            }
-        } else if (currentTool !== 'text' && currentTool !== 'fill') {
-            canvasManager.restoreSnapshot();
-            applyContextStyles(ctx, paletteManager);
+        canvasManager.restoreSnapshot();
+        applyContextStyles(ctx, paletteManager);
 
-            switch (currentTool) {
-                case 'line':
-                    drawLine(ctx, startX, startY, endX, endY);
-                    break;
-                case 'rect':
-                    drawRect(ctx, startX, startY, endX, endY);
-                    break;
-                case 'circle':
-                    drawCircle(ctx, startX, startY, endX, endY);
-                    break;
-                case 'ellipse':
-                    drawEllipse(ctx, startX, startY, endX, endY);
-                    break;
-                case 'polygon':
-                    drawPolygon(ctx, startX, startY, endX, endY);
-                    break;
-            }
+        switch (currentTool) {
+            case 'pencil':
+                drawPencil(ctx, lastX, lastY, endX, endY);
+                break;
+            case 'eraser':
+                drawEraser(ctx, lastX, lastY, endX, endY);
+                break;
+            case 'line':
+                drawLine(ctx, startX, startY, endX, endY);
+                break;
+            case 'rect':
+                drawRect(ctx, startX, startY, endX, endY);
+                break;
+            case 'circle':
+                drawCircle(ctx, startX, startY, endX, endY);
+                break;
+            case 'ellipse':
+                drawEllipse(ctx, startX, startY, endX, endY);
+                break;
+            case 'polygon':
+                drawPolygon(ctx, startX, startY, endX, endY);
+                break;
+        }
 
-            canvasManager.takeSnapshot();
-            canvasManager.saveHistory();
+        canvasManager.takeSnapshot();
+        canvasManager.saveHistory();
 
-            if (canvasManager.isGuidesVisible()) {
-                canvasManager.drawGuides(endX, endY);
-            }
+        if (canvasManager.isGuidesVisible()) {
+            canvasManager.drawGuides(endX, endY);
         }
     }
 
@@ -875,6 +1058,7 @@ window.Paint.Tools = (function () {
         hasActiveTextOverlay: () => !!activeTextOverlay,
         commitActiveSelection,
         deleteActiveSelection,
+        pasteImageFromClipboard,
         hasSelection: () => hasSelection,
         onMouseDown,
         onMouseMove,
