@@ -1253,26 +1253,33 @@ body {
         max-height: 100%;
         border: none;
         box-shadow: none;
+        display: flex;
+        flex-direction: column;
     }
 
     .title-bar {
         padding: 0 4px;
+        height: 26px;
+        font-size: 11px;
     }
 
     .title-bar-text {
-        max-width: 70vw;
+        max-width: 65vw;
         overflow: hidden;
     }
 
     .retro-title-input {
         max-width: 110px;
+        font-size: 10px;
     }
 
     .menu-bar {
+        height: 24px;
         overflow-x: auto;
         white-space: nowrap;
         scrollbar-width: none;
         -webkit-overflow-scrolling: touch;
+        flex-shrink: 0;
     }
 
     .menu-bar::-webkit-scrollbar {
@@ -1292,67 +1299,90 @@ body {
 
     /* Main Workspace Layout on Mobile: Vertical Column */
     .app-body {
+        flex: 1;
+        display: flex;
         flex-direction: column;
+        overflow: hidden;
         padding: 2px;
         gap: 2px;
     }
 
-    /* Top Horizontal Scrollable Mobile Toolbar */
+    /* Mobile Toolbar Panel: Vertical stack of 2 compact sections (Tools Box + Options Box) */
     .sidebar-panel {
         width: 100%;
         height: auto;
-        flex-direction: row;
+        flex-direction: column;
         align-items: stretch;
-        gap: 4px;
-        overflow-x: auto;
+        gap: 2px;
         background-color: #ece9d8;
-        border-bottom: 1px solid #aca899;
+        border-bottom: 2px solid;
+        border-color: #808080 #ffffff #ffffff #808080;
         padding: 2px;
         flex-shrink: 0;
-        scrollbar-width: thin;
-        -webkit-overflow-scrolling: touch;
     }
 
     .panel-box {
         display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 4px;
-        padding: 2px 4px;
-        border-width: 1px;
+        flex-direction: column;
+        padding: 3px 4px;
+        border: 1px solid #aca899;
+        background-color: #ece9d8;
     }
 
     .panel-header {
-        margin-bottom: 0;
-        margin-right: 4px;
-        padding-right: 6px;
-        border-right: 1px solid #aca899;
-        font-size: 9px;
-        white-space: nowrap;
+        font-size: 10px;
+        font-weight: bold;
+        color: #000080;
+        margin-bottom: 3px;
+        margin-right: 0;
+        padding-right: 0;
+        border-right: none;
     }
 
+    /* 6-Column Grid for Tools on Mobile: All 11 tools fit in 2 compact rows */
     .tools-grid {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
         gap: 2px;
-        overflow-x: auto;
+        overflow: visible;
+        width: 100%;
     }
 
     .tool-btn {
-        height: 28px;
-        min-width: 28px;
-        padding: 2px 4px;
+        height: 30px;
+        min-width: 0;
+        padding: 2px;
         gap: 2px;
+        justify-content: center;
+        flex-direction: row;
     }
 
+    .tool-icon {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+    }
+
+    .tool-label {
+        font-size: 9px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Tool Options Box on Mobile: Horizontal Wrap Row Layout */
     .tool-options-box {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 6px;
-        overflow-x: auto;
-        white-space: nowrap;
+        gap: 4px 10px;
+        padding: 3px 4px;
+    }
+
+    .tool-options-box .panel-header {
+        width: 100%;
+        margin-bottom: 1px;
     }
 
     .option-row-group {
@@ -1363,6 +1393,10 @@ body {
         margin-bottom: 0;
     }
 
+    .option-row-group label {
+        font-size: 9px;
+    }
+
     .option-row {
         display: flex;
         align-items: center;
@@ -1370,26 +1404,47 @@ body {
         margin-top: 0 !important;
     }
 
+    .width-preset-btn {
+        width: 22px;
+        height: 22px;
+        padding: 1px;
+    }
+
+    .cap-preset-btn {
+        padding: 2px 4px;
+        height: 22px;
+    }
+
+    .cap-label {
+        font-size: 9px;
+    }
+
     /* Canvas Container */
     .canvas-container {
-        padding: 20px 15px;
+        flex: 1;
+        min-height: 150px;
+        padding: 15px 10px;
     }
 
     /* Bottom Color Bar & Palette */
     .bottom-panel {
         padding: 2px;
         gap: 2px;
+        flex-shrink: 0;
     }
 
     .color-bar {
         height: auto;
-        padding: 4px;
+        padding: 3px 4px;
+        display: flex;
         flex-wrap: wrap;
+        align-items: center;
         justify-content: space-between;
         gap: 4px;
     }
 
     .color-rows-container {
+        display: flex;
         flex-direction: row;
         gap: 4px;
         padding: 2px;
@@ -1500,6 +1555,7 @@ body {
         display: none;
     }
 
+    /* On narrow phones, hide text label inside tool button to make buttons clean square icon touch targets */
     .tool-label {
         display: none;
     }
@@ -1507,7 +1563,7 @@ body {
     .tool-btn {
         min-width: 32px;
         height: 32px;
-        padding: 4px;
+        padding: 3px;
         justify-content: center;
     }
 
