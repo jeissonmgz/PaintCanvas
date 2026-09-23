@@ -1204,3 +1204,10 @@ body {
     display: flex;
     gap: 6px;
 }
+
+/* Drag & Drop Hover Visual Feedback */
+.canvas-container.drag-over {
+    outline: 3px dashed #0058e6;
+    outline-offset: -6px;
+    background-color: #d4e2fb !important;
+}

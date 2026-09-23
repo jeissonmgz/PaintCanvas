@@ -24,6 +24,7 @@ window.Paint.UI = (function () {
         setupWindowControls();
         setupExplorerModalEvents();
         setupKeyboardShortcuts();
+        setupDragAndDrop();
         updateStatusBarDimensions();
     }
 
@@ -732,6 +733,54 @@ window.Paint.UI = (function () {
                 }
             }
         });
+    }
+
+    function setupDragAndDrop() {
+        const dropZone = document.body;
+        const canvasContainer = document.querySelector('.canvas-container');
+
+        const preventDefaults = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        };
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                if (canvasContainer) canvasContainer.classList.add('drag-over');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                if (canvasContainer) canvasContainer.classList.remove('drag-over');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            if (!dt) return;
+
+            const files = Array.from(dt.files || []);
+            const imageFile = files.find(f => f.type && f.type.startsWith('image/'));
+
+            if (imageFile) {
+                const img = new Image();
+                img.onload = () => {
+                    Tools.pasteImageFromClipboard(Canvas, img);
+                    updateStatusText(`Imagen '${imageFile.name}' agregada. Arrastre los tiradores para cambiar el tamaño.`);
+                };
+                img.src = URL.createObjectURL(imageFile);
+            } else if (files.length > 0) {
+                window.Paint.Modal.warning(
+                    'Por favor arrastre únicamente archivos de imagen (PNG, JPG, WEBP, GIF, BMP, SVG).',
+                    'Archivo No Soportado'
+                );
+            }
+        }, false);
     }
 
     function updateStatusCoordinates(x, y) {
