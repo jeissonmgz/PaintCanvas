@@ -1,0 +1,48 @@
+name: Validate PR Version
+
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-version:
+    name: Check package.json Version Uniqueness
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout PR Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Verify Version is Not Already Published Tag
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG_V="v$VERSION"
+          TAG_PLAIN="$VERSION"
+
+          echo "Versión extraída de package.json: $VERSION"
+
+          EXISTS=$(git ls-remote --tags origin "refs/tags/$TAG_V" "refs/tags/$TAG_PLAIN")
+
+          if [ -n "$EXISTS" ]; then
+            echo "::error::La versión '$VERSION' ($TAG_V) definida en package.json ya existe como etiqueta publicada."
+            echo "::error::Debes incrementar el número de versión en package.json antes de fusionar el Pull Request a master."
+            exit 1
+          else
+            echo "Éxito: La versión '$VERSION' es nueva y válida."
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify project build
+        run: npm run build

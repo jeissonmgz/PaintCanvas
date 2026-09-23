@@ -1,0 +1,99 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: 'Versión (Tag ej. v1.0.0 / 1.0.0) o Rama a desplegar (dejar vacío para commit actual)'
+        required: false
+        default: 'master'
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Resolve Git Ref
+        id: resolve-ref
+        run: |
+          INPUT="${{ inputs.target_ref }}"
+          if [ -z "$INPUT" ]; then
+            TARGET_REF="${{ github.ref }}"
+          elif [[ "$INPUT" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            TARGET_REF="v$INPUT"
+          else
+            TARGET_REF="$INPUT"
+          fi
+          echo "TARGET_REF=$TARGET_REF" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.resolve-ref.outputs.TARGET_REF }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  create-tag:
+    name: Create Git Tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create and Push Tag
+        run: |
+          VERSION="v$(node -p "require('./package.json').version")"
+          echo "Target tag version: $VERSION"
+          git fetch --tags
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "Tag $VERSION already exists. Skipping tag creation."
+          else
+            echo "Creating tag $VERSION..."
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag "$VERSION"
+            git push origin "$VERSION"
+          fi

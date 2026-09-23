@@ -1,0 +1,69 @@
+name: Manual Deploy by Version or Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: 'Versión (Tag ej. v1.0.0 / 1.0.0) o Nombre de Rama a desplegar'
+        required: true
+        default: 'master'
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy Version or Branch
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve Git Ref
+        id: resolve-ref
+        run: |
+          INPUT="${{ inputs.target_ref }}"
+          echo "Input recibido: $INPUT"
+          if [[ "$INPUT" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            TARGET_REF="v$INPUT"
+          else
+            TARGET_REF="$INPUT"
+          fi
+          echo "Git ref resuelto: $TARGET_REF"
+          echo "TARGET_REF=$TARGET_REF" >> $GITHUB_OUTPUT
+
+      - name: Checkout Target Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.resolve-ref.outputs.TARGET_REF }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
