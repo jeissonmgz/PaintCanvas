@@ -573,6 +573,7 @@ window.Paint.UI = (function () {
                 touchStartScrollLeft = canvasContainer.scrollLeft;
                 touchStartScrollTop = canvasContainer.scrollTop;
             } else if (e.touches.length === 1 && !isTouchGesturing && e.target === canvas) {
+                e.preventDefault();
                 const fakeEvent = createMouseEventFromTouch(e, 'mousedown');
                 Tools.onMouseDown(fakeEvent, Canvas, Palette);
             }

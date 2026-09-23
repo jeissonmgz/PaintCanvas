@@ -1232,3 +1232,304 @@ body {
     outline-offset: -6px;
     background-color: #d4e2fb !important;
 }
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (MOBILE-FIRST ADAPTATIONS & MEDIA QUERIES)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Mobile Viewports (< 768px) Base Responsive Overrides
+   -------------------------------------------------------------------------- */
+@media (max-width: 767px) {
+    body {
+        padding: 0;
+        align-items: stretch;
+    }
+
+    .win-app {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100%;
+        max-height: 100%;
+        border: none;
+        box-shadow: none;
+    }
+
+    .title-bar {
+        padding: 0 4px;
+    }
+
+    .title-bar-text {
+        max-width: 70vw;
+        overflow: hidden;
+    }
+
+    .retro-title-input {
+        max-width: 110px;
+    }
+
+    .menu-bar {
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .menu-bar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .menu-item {
+        display: inline-block;
+    }
+
+    .dropdown-menu {
+        max-height: 70vh;
+        overflow-y: auto;
+        position: fixed;
+        z-index: 1000;
+    }
+
+    /* Main Workspace Layout on Mobile: Vertical Column */
+    .app-body {
+        flex-direction: column;
+        padding: 2px;
+        gap: 2px;
+    }
+
+    /* Top Horizontal Scrollable Mobile Toolbar */
+    .sidebar-panel {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        align-items: stretch;
+        gap: 4px;
+        overflow-x: auto;
+        background-color: #ece9d8;
+        border-bottom: 1px solid #aca899;
+        padding: 2px;
+        flex-shrink: 0;
+        scrollbar-width: thin;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .panel-box {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 4px;
+        border-width: 1px;
+    }
+
+    .panel-header {
+        margin-bottom: 0;
+        margin-right: 4px;
+        padding-right: 6px;
+        border-right: 1px solid #aca899;
+        font-size: 9px;
+        white-space: nowrap;
+    }
+
+    .tools-grid {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 2px;
+        overflow-x: auto;
+    }
+
+    .tool-btn {
+        height: 28px;
+        min-width: 28px;
+        padding: 2px 4px;
+        gap: 2px;
+    }
+
+    .tool-options-box {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .option-row-group {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 0;
+    }
+
+    .option-row {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 0 !important;
+    }
+
+    /* Canvas Container */
+    .canvas-container {
+        padding: 20px 15px;
+    }
+
+    /* Bottom Color Bar & Palette */
+    .bottom-panel {
+        padding: 2px;
+        gap: 2px;
+    }
+
+    .color-bar {
+        height: auto;
+        padding: 4px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 4px;
+    }
+
+    .color-rows-container {
+        flex-direction: row;
+        gap: 4px;
+        padding: 2px;
+    }
+
+    .color-row-item {
+        padding: 1px 4px;
+    }
+
+    .swatch-grid {
+        display: grid;
+        grid-template-rows: repeat(2, 20px);
+        grid-auto-flow: column;
+        gap: 2px;
+        overflow-x: auto;
+        max-width: 100%;
+        padding: 1px 0;
+    }
+
+    .color-swatch {
+        width: 20px;
+        height: 20px;
+    }
+
+    .transparency-control-group {
+        min-width: 100px;
+        padding: 2px 4px;
+    }
+
+    .status-bar {
+        height: 20px;
+        gap: 2px;
+    }
+
+    .status-panel {
+        font-size: 10px;
+        padding: 1px 4px;
+    }
+
+    .status-panel.coords-status {
+        width: 90px;
+    }
+
+    .status-panel.dim-status {
+        width: 80px;
+    }
+
+    .status-panel.zoom-status {
+        width: 45px;
+    }
+
+    /* Mobile Modals */
+    .modal-win {
+        width: 92vw;
+        max-width: 380px;
+    }
+
+    .explorer-modal-win {
+        width: 95vw;
+        height: 88vh;
+        max-width: 100%;
+        max-height: 90vh;
+    }
+
+    .explorer-toolbar {
+        padding: 4px;
+        gap: 4px;
+    }
+
+    .explorer-search-wrap {
+        margin-left: 0;
+        width: 100%;
+        margin-top: 4px;
+    }
+
+    .explorer-search-wrap input {
+        width: 100%;
+    }
+
+    .explorer-body {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .explorer-sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 140px;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 4px;
+        gap: 4px;
+        border-right: none;
+        border-bottom: 1px solid #aca899;
+    }
+
+    .explorer-pane-box {
+        min-width: 160px;
+        flex-shrink: 0;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Extra Small Devices (< 480px Smartphones)
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+    .app-title-suffix {
+        display: none;
+    }
+
+    .tool-label {
+        display: none;
+    }
+
+    .tool-btn {
+        min-width: 32px;
+        height: 32px;
+        padding: 4px;
+        justify-content: center;
+    }
+
+    .tool-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .row-title {
+        display: none;
+    }
+
+    .status-panel.main-status {
+        display: none;
+    }
+
+    .explorer-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 8px;
+    }
+
+    .file-thumb-box {
+        height: 70px;
+    }
+}
