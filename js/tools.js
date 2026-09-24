@@ -964,16 +964,26 @@ window.Paint.Tools = (function () {
         const endY = coords.y;
         const ctx = canvasManager.getContext();
 
+        if (currentTool === 'pencil' || currentTool === 'eraser') {
+            applyContextStyles(ctx, paletteManager);
+            if (currentTool === 'pencil') {
+                drawPencil(ctx, lastX, lastY, endX, endY);
+            } else {
+                drawEraser(ctx, lastX, lastY, endX, endY);
+            }
+            canvasManager.takeSnapshot();
+            canvasManager.saveHistory();
+
+            if (canvasManager.isGuidesVisible()) {
+                canvasManager.drawGuides(endX, endY);
+            }
+            return;
+        }
+
         canvasManager.restoreSnapshot();
         applyContextStyles(ctx, paletteManager);
 
         switch (currentTool) {
-            case 'pencil':
-                drawPencil(ctx, lastX, lastY, endX, endY);
-                break;
-            case 'eraser':
-                drawEraser(ctx, lastX, lastY, endX, endY);
-                break;
             case 'line':
                 drawLine(ctx, startX, startY, endX, endY);
                 break;
