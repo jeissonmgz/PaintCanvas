@@ -10,6 +10,7 @@ window.Paint.UI = (function () {
     const Palette = window.Paint.Palette;
 
     function init() {
+        setupViewportHeight();
         if (window.Paint && window.Paint.Modal) {
             window.Paint.Modal.overrideGlobals();
         }
@@ -30,6 +31,16 @@ window.Paint.UI = (function () {
             Canvas.setOnCanvasChange(() => saveCurrentToStorage(false));
         }
         updateStatusBarDimensions();
+    }
+
+    function setupViewportHeight() {
+        const updateVH = () => {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        };
+        window.addEventListener('resize', updateVH);
+        window.addEventListener('orientationchange', updateVH);
+        updateVH();
     }
 
     function setupTitleInput() {
