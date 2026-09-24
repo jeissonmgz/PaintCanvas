@@ -62,6 +62,7 @@ window.Paint.Canvas = (function () {
             guidesCanvas.width = canvas.width;
             guidesCanvas.height = canvas.height;
         }
+        applyZoom();
     }
 
     function getCanvas() {
@@ -231,8 +232,12 @@ window.Paint.Canvas = (function () {
 
     function applyZoom() {
         const wrapper = document.getElementById('canvas-wrapper');
-        if (wrapper) {
+        if (wrapper && canvas) {
             wrapper.style.transform = `scale(${zoomLevel})`;
+            const scaledWidth = canvas.width * zoomLevel;
+            const scaledHeight = canvas.height * zoomLevel;
+            wrapper.style.marginRight = `${Math.max(0, scaledWidth - canvas.width)}px`;
+            wrapper.style.marginBottom = `${Math.max(0, scaledHeight - canvas.height)}px`;
         }
     }
 

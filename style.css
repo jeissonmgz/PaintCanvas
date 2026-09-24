@@ -297,9 +297,7 @@ body {
     border-color: #808080 #ffffff #ffffff #808080;
     overflow: auto;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 100px;
+    padding: 60px;
     position: relative;
     touch-action: none;
 }
@@ -308,12 +306,14 @@ body {
     position: relative;
     display: inline-block;
     line-height: 0;
-    transform-origin: center center;
+    margin: auto;
+    transform-origin: 0 0;
     transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1);
     image-rendering: pixelated;
     image-rendering: crisp-edges;
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
     background-color: #ffffff;
+    flex-shrink: 0;
 }
 
 #gridCanvas {
